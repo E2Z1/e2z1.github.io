@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap');
+h1 {
+    text-align: center;
+    color:blanchedalmond;
+    font-family: 'EB Garamond', serif;
+    font-size: 128px;
+}
+html {
+    background-color: blue;
+}
+#headlinebutton {
+    border: 0px;
+    background-color: aquamarine;
+    color: chocolate;
+    font-size: 64px;
+    padding: 50px 250px;
+    font-family: 'EB Garamond', serif;
+
+}
+#headlinebutton:hover {
+    background-color: chocolate;
+    color: aquamarine;
+    font-style: oblique;
+    font-weight: bold;
+}
+#time {
+    text-align: center;
+    color:blanchedalmond;
+    font-family: 'EB Garamond', serif;
+    font-size: 80px;
+}
