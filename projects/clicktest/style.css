@@ -1,15 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Asar&display=swap');
 
-
 * {
     font-family: 'Asar', serif;
 }
-
 
 body {
     margin: 0;
     padding: 0;
   }
+
+#headline {
+    text-align: center;
+    color:blanchedalmond;
+    font-size: 128px;
+}
+html {
+    background-color: blue;
+}
+#headlinebutton {
+    border: 0px;
+    background-color: aquamarine;
+    color: chocolate;
+    font-size: 64px;
+    padding: 50px 250px;
+
+}
+#headlinebutton:hover {
+    background-color: chocolate;
+    color: aquamarine;
+    font-style: oblique;
+    font-weight: bold;
+}
+
 .navbar {
     background-color: #e5e5e5;
     height: 180px;
@@ -45,4 +67,4 @@ body {
   nav a:active {
     font-weight: bold;
   }
-  
+
