@@ -21,7 +21,9 @@ body {
     color: chocolate;
     font-size: 32px;
     text-align: center;
-    max-width: 400px;
+    padding: 14px 28px;
+    width: 100%;
+    cursor: pointer;
     height: 300px;
     
 
