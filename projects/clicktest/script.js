@@ -1,9 +1,9 @@
-var x = 1
+var score = 0
 function buttonaction() {
-    document.getElementById("headline").innerHTML = "Das "+String(x)+". mal gedrückt"
-    x += 1
+    score += 1
+    document.getElementById("headline").innerHTML = String(score)
 }
 function reset() {
-    x = 1
-    document.getElementById("headline").innerHTML = "Kein Score"
+    score = 0
+    document.getElementById("headline").innerHTML = "No Score"
 }
