@@ -23,8 +23,9 @@ html {
     color: chocolate;
     font-size: 32px;
     text-align: center;
-    width: 250px;
-    max-width: 250px;
+    width: 1000000000px;
+    max-width: 1000000000px;
+    height: 75
     
 
 }
