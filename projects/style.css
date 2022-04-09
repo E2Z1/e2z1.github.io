@@ -53,6 +53,7 @@ body {
     transition: 0.3s;
     width: 40%;
     padding: 30px 30px;
+    border-radius: 10px;
   }
   
   .card:hover {
