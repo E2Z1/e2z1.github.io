@@ -24,7 +24,7 @@ body {
     width: 100%;
     cursor: pointer;
     height: 300px;
-    
+    margin-top: 10px;
 
 }
 #headlinebutton:hover {
