@@ -21,8 +21,9 @@ body {
     color: chocolate;
     font-size: 32px;
     text-align: center;
-    max-width: 1000000000px;
-    height: 300
+    width: 500px;
+    max-width: 400px;
+    height: 300px;
     
 
 }
