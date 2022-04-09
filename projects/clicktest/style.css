@@ -21,10 +21,10 @@ html {
     border: 0px;
     background-color: aquamarine;
     color: chocolate;
-    font-size: 64px;
+    font-size: 32px;
     padding: 50px 250px;
-    width: 500px;
-    max-width: 500px;
+    width: 250px;
+    max-width: 250px;
     
 
 }
