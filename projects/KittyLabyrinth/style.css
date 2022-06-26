@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Asar&display=swap');
+
+
+* {
+    font-family: 'Asar', serif;
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+  }
+.navbar {
+    background-color: #e5e5e5;
+    height: 180px;
+  }
+  
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav {
+  float: right;
+  margin: 0;
+}
+
+li {
+  display: inline;
+  padding: 15px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #353535;
+  display: inline-block;
+  padding-top: 15px;
+}
+
+nav a:hover {
+  color: #00b2b2;
+}
+
+nav a:active {
+  font-weight: bold;
+}
+
+
+
+#controls {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#controls td, #controls th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#controls tr:nth-child(even){background-color: #f2f2f2;}
+
+#controls tr:hover {background-color: #ddd;}
+
+#controls th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+#buttona {
+  text-decoration: none;
+  color: white;
+  display: inline-block;
+
+
+
+
+  width: 100%;
+  height: 100%;
+  background-color: #00b2b2; 
+  text-align: center;
+}
+
+#buttona:hover {
+  color: #00b2b2;
+  background: none;
+}
+
+#buttona:active {
+  font-weight: bold;
+}
