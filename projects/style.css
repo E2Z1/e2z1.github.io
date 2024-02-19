@@ -46,7 +46,10 @@ body {
   nav a:active {
     font-weight: bold;
   }
-  
+
+  #projects {
+      display: flex;
+  }
 
   .card {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
