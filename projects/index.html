@@ -5,54 +5,57 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E2Z1' Projects</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/imgs/Logo.png">
-    <script src="script.js"></script>
 </head>
 <body>
-    <div class="navbar">
-        <br>
-        <h1>E2Z1' Projects</h1>
-        <nav>
-           <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="./">Projects</a></li>
-          </ul>
-        </nav>
-        
-      </div>
+  <nav>
+    <div id="title">
+        <h1>E2Z1</h1>
+        <h2 id="loc">Projects</h2>
+    </div>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/projects/">Projects</a></li>
+        <li><a href="https://github.com/E2Z1">Github</a></li>
+    </ul>
+  </nav>
 
     
       <div id="projects">
-          <div class="card" style="cursor: pointer;" onclick="window.location='https://github.com/E2Z1?tab=repositories';">
-            <img src="/imgs/GithubLogo.jpeg" alt="Image" style="width:100%">
-            <div class="container">
-              <h4><b>My Github</b></h4> 
-              <p>The code of my projects</p> 
-            </div>
-          </div>
-          <div class="card" style="cursor: pointer;" onclick="window.location='/Doppelkopf/'">
-            <img src="/Doppelkopf/cards/3-4.svg" alt="Doppelkopf" style="width:100%">
+          <div class="card" style="cursor: pointer;" onclick="window.location='https://doko-wcmv.onrender.com'">
+            <img src="/imgs/doppelkopf.png" alt="Doppelkopf" style="width:100%">
             <div class="container">
               <h4><b>Doppelkopf</b></h4> 
-              <p>A german card game</p> 
+              <p id="year">2024</p>
+              <p>A german card game</p>
+              <p>Might take some time to start the server</p>
+            </div>
+          </div>
+          <div class="card" style="cursor: pointer;" onclick="window.location='https://doko-wcmv.onrender.com'">
+            <img src="/imgs/website.png" alt="Website" style="width:100%">
+            <div class="container">
+              <h4><b>This Website</b></h4> 
+              <p id="year">2022 - now</p>
+              <p>lol</p>
             </div>
           </div>
           <div class="card" style="cursor: pointer;" onclick="window.location='./clicktest';">
-            <img src="/imgs/clicktest.png" alt="Image" style="width:100%">
+            <img src="/imgs/click.png" alt="Image" style="width:100%">
             <div class="container">
               <h4><b>Clicktest</b></h4> 
-              <p>How fast can you click?</p> 
+              <p id="year">2022</p>
+              <p>How fast can you click?</p>
             </div>
           </div>
           <div class="card" style="cursor: pointer;" onclick="window.location='./KittyLabyrinth';">
             <img src="/imgs/Kitty.png" alt="Image" style="width:100%">
             <div class="container">
               <h4><b>KittyLabyrinth</b></h4> 
-              <p>A Kitty in a Labyrinth</p> 
+              <p id="year">2022</p>
+              <p>A Cat in a Labyrinth</p> 
             </div>
           </div>
       </div>
-        
 </body>
 </html>
