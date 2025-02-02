@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Designer</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/imgs/Logo.png">
+</head>
+<body>
+  <nav>
+    <div id="title">
+        <h1>E2Z1</h1>
+        <h2 id="loc">Fonts</h2>
+    </div>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/projects/">Projects</a></li>
+        <li><a href="https://github.com/E2Z1">Github</a></li>
+    </ul>
+  </nav>
+
+  <label for="width_inp">Width</label>
+  <input type="number" value="8" min="1" id="width_inp" placeholder="Width of a character">
+  <label for="height_inp">Height</label>
+  <input type="number" value="13" min="1" id="height_inp" placeholder="Height of a character">
+  
+  <a id="next" onclick="next()">Next</a>
+  <a id="copy" onclick="compile()">Copy Array</a>
+
+  <div id="fontDesigner">
+    <div id="canvas">
+      <button x="1" y="1" class="pixel"></button><button class="pixel"></button> <br>
+      <button class="pixel"></button><button class="pixel"></button>
+    </div>
+    <p id="curChar">!</p>
+  </div>
+    
+<script src="script.js"></script>
+</body>
+</html>
