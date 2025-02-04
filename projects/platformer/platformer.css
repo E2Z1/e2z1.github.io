@@ -1,0 +1,12 @@
+button {
+    background-color: white;
+    color: var(--c1);
+    width: 50%;
+    margin-left: 25%;
+    font-size: 80px;
+    cursor: pointer;
+}
+
+#game {
+    display: none;
+}

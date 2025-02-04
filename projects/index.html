@@ -5,8 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E2Z1' Projects</title>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="icon" href="/imgs/Logo.png">
+    <link rel="stylesheet" href="/global.css">
+    <link rel="stylesheet" href="projects.css">
+    <link rel="icon" href="/imgs/logo.svg">
 </head>
 <body>
   <nav>
@@ -23,8 +24,8 @@
 
     
       <div id="projects">
-          <div class="card" style="cursor: pointer;" onclick="window.location='https://doko-wcmv.onrender.com'">
-            <img src="/imgs/doppelkopf.png" alt="Doppelkopf" style="width:100%">
+          <div class="card" onclick="window.location='https://doko-wcmv.onrender.com'">
+            <img src="/imgs/doppelkopf.png" alt="Doppelkopf" id="title_img">
             <div class="container">
               <h4><b>Doppelkopf</b></h4> 
               <p id="year">2024</p>
@@ -32,32 +33,32 @@
               <p>It might take some time to start the server</p>
             </div>
           </div>
-          <div class="card" style="cursor: pointer;" onclick="window.location='/'">
-            <img src="/imgs/website.png" alt="Website" style="width:100%">
+          <div class="card" onclick="window.location='/'">
+            <img src="/imgs/website.png" alt="Website" id="title_img">
             <div class="container">
               <h4><b>This Website</b></h4> 
               <p id="year">2022 - 2025</p>
               <p>lol</p>
             </div>
           </div>
-          <div class="card" style="cursor: pointer;" onclick="window.location='./fontDesign'">
-            <img src="/imgs/font.png" alt="Font Designer" style="width:100%">
+          <div class="card" onclick="window.location='./fontDesign'">
+            <img src="/imgs/font.png" alt="Font Designer" id="title_img">
             <div class="container">
               <h4><b>H File Font Designer</b></h4> 
               <p id="year">2025</p>
               <p>A simple bmp-font designer for ascii characters, which creates .h-files</p>
             </div>
           </div>
-          <div class="card" style="cursor: pointer;" onclick="window.location='./clicktest';">
-            <img src="/imgs/click.png" alt="Image" style="width:100%">
+          <div class="card" onclick="window.location='./clicktest';">
+            <img src="/imgs/click.png" alt="Image" id="title_img">
             <div class="container">
               <h4><b>Clicktest</b></h4> 
               <p id="year">2022</p>
               <p>How fast can you click?</p>
             </div>
           </div>
-          <div class="card" style="cursor: pointer;" onclick="window.location='./KittyLabyrinth';">
-            <img src="/imgs/Kitty.png" alt="Image" style="width:100%">
+          <div class="card" onclick="window.location='./KittyLabyrinth';">
+            <img src="/imgs/Kitty.png" alt="Image" id="title_img">
             <div class="container">
               <h4><b>KittyLabyrinth</b></h4> 
               <p id="year">2022</p>
@@ -65,5 +66,6 @@
             </div>
           </div>
       </div>
+      <script src="script.js"></script>
 </body>
 </html>

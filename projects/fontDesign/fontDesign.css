@@ -1,0 +1,40 @@
+
+#fontDesigner #canvas {
+    margin: 20px;
+}
+
+#fontDesigner {
+    display: flex;
+}
+
+#fontDesigner #canvas .pixel {
+    width: 50px;
+    height: 50px;
+    border-radius: 0;
+    background-color: white;
+    border: 0;
+    padding: 0;
+    margin: 1px;
+}
+
+#fontDesigner #curChar {
+    font-size: 200px;
+    margin: 10px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+label {
+    display: block;
+}
+
+#next, #copy {
+    cursor: pointer;
+    background-color: white;
+    color: var(--c1);
+    font-size: 30px;
+    padding: 10px;
+    margin: 5px;
+
+    user-select: none;
+}
+  

@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Asar&display=swap');
+
+
+@property --c1 {
+  syntax: '<color>';
+  initial-value: #232369;
+  inherits: false;
+}
+
+@property --c2 {
+  syntax: '<color>';
+  initial-value: #240078;
+  inherits: false;
+}
+
+* {
+    font-family: 'Asar', serif;
+}
+
+
+body {
+  background: linear-gradient(45deg, #202025, #100035);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  color: white;
+  
+}
+
+
+nav {
+  width: 150px;
+  display: flex;
+  height: 100px;
+}
+nav #title {
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+nav #title h1 {
+  position: absolute;
+  font-size: 50px;
+  left: 5px;
+  top: 0px;
+  margin: 0;
+}
+
+nav #title h2 {
+  margin: 0;
+  font-size: 25px;
+  margin-top: 0;
+  letter-spacing: 5px;
+  position: absolute;
+  text-wrap: no-wrap;
+  left: 7px;
+  top: 50px;
+}
+
+nav ul {
+  list-style-type: none;
+  position: absolute;
+  right: 10px;
+}
+
+nav a {
+  display: block;
+  text-decoration: none;
+  color: white;
+  transition: 0.1s;
+}
+
+nav a:hover {
+  color: #7e7eff;
+  transform: translate(-4px,0);
+}
+  
+
