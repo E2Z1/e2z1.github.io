@@ -8,15 +8,20 @@ let keys = {};
 
 //const ground = [{x: -100, y: 0, w: 130, h:10}, {x: 30, y: -50, w: 30, h:60}, {x: 60, y: -70, w: 700, h:20}, ];
 const spikes = [];
+let lastPhysics;
 let lastFrame;
 let countedFrames = 0;
 let fps = 0;
 let collidingObject;
 let scale; //height equals ppL LE
 const tps = 100;    //ticks per second
-const ppL = 300;    //Pixels per Längeneinheit
+const ppL = 1000;    //Pixels per Längeneinheit
 let mouseX = 0;
 let mouseY = 0;
+let player;
+let logicInterval;
+const doInterpolation = true;
+let gaming;
 
 let objects = [];
 let entitys = [];
@@ -36,9 +41,14 @@ class GameObject {
         if (objects.findIndex(object => object == this) != -1)
             objects.splice(objects.findIndex(object => object == this), 1);
     }
-    render(mx, my, scale) {
+    render(mx, my, scale, lastPhysics) {
+        let physicsThingo = doInterpolation ? (performance.now() - lastPhysics) / (1000/tps) : 0;
+        let addPLayerX = player.vx * physicsThingo;
+        let addPlayerY = player.vy * physicsThingo;
+        let addX = this.vx ? this.vx * physicsThingo : 0;
+        let addY = this.vy ? this.vy * physicsThingo : 0;
         ctx.fillStyle = this.color;
-        ctx.fillRect(mx + Math.floor((this.x - player.x)*scale), my + Math.floor((this.y - player.y)*scale), this.w * scale, this.h * scale);
+        ctx.fillRect(mx + Math.floor((this.x + addX - (player.x + addPLayerX))*scale), my + Math.floor((this.y +addY - (player.y+addPlayerY))*scale), this.w * scale, this.h * scale);
     }
 }
 
@@ -132,8 +142,8 @@ class Entity extends GameObject {
         if (this.y > 500)
             this.die();
         for (let spike of spikes) {
-            if (isColliding(this, spike))
-                this.damage();
+            if (isColliding(this, spike));
+                this.die();
         }
     }
 }
@@ -184,17 +194,19 @@ class Player extends Entity {
     }
     die() {
         //return;
-        this.alive = false;
-        this.color = "rgb(100 100 100 / 80%)"
-        let self = this;
-        setTimeout(() => {
-            self.x = self.initX;
-            self.y = self.initY;
-            self.vx = 0.0;
-            self.vy = 0.0;
-            self.alive = true;
-            self.color = "rgb(0 255 0)";
-        }, 1000);
+        if (this.alive) {
+            this.alive = false;
+            this.color = "rgb(100 100 100 / 80%)"
+            let self = this;
+            setTimeout(() => {
+                self.x = self.initX;
+                self.y = self.initY;
+                self.vx = 0.0;
+                self.vy = 0.0;
+                self.alive = true;
+                self.color = "rgb(0 255 0)";
+            }, 1000);
+        }
         return;
     }
 
@@ -203,7 +215,6 @@ class Player extends Entity {
     }
 
     physics() {
-        super.physics();
         if (this.alive) {
             if ((keys["w"] || keys["ArrowUp"]) && this.ong) {
                 this.vy = this.jump_accel;
@@ -220,35 +231,44 @@ class Player extends Entity {
                 this.fist = new Fist(this.x+this.w/2-1.5, this.y+this.h/2-1.5, 1, this);
             }
         }
+        super.physics();
     }
 }
 
 
+function loadLevel(lvl) {
+    objects = [];
+    entitys = [];
+    switch (lvl) {
+        case 0:
+            new Ground(-100, 0, 130, 10);
+            new Ground(30, -20, 90, 30);
+            new Ground(80, -40, 40, 20);
+            new Ground(120, -70, 40, 30);
+            new Ground(120, 0, 100, 10);
+            new Ground(220, -20, 50, 20);
+            new Ground(270, -30, 60, 10);
+            new Ground(270, -90, 60, 40);
+            new Ground(300, -40, 30, 10);
+            new Ground(350, 0, 10, 10);
+            new Ground(410, -40, 30, 100);
+            new Ground(420, 200, 10, 10);
+            new Ground(370, 180, 30, 10);
 
 
-new Ground(-100, 0, 130, 10);
-new Ground(30, -20, 90, 30);
-new Ground(80, -40, 40, 20);
-new Ground(120, -70, 40, 30);
-new Ground(120, 0, 100, 10);
-new Ground(220, -20, 50, 20);
-new Ground(270, -30, 60, 10);
-new Ground(270, -90, 60, 40);
-new Ground(300, -40, 30, 10);
-new Ground(350, 0, 10, 10);
-new Ground(410, -40, 30, 100);
-new Ground(-100, 0, 130, 10);
-new Ground(-100, 0, 130, 10);
-new Spike(-80, -10);
-new Spike(33, -30);
-new Spike(60, -30);
-new Spike(120, -80);
-new Spike(330, 10, 80, 10);
+            new Spike(-80, -10);
+            new Spike(33, -30);
+            new Spike(60, -30);
+            new Spike(120, -80);
+            new Spike(330, 10, 80, 10);
+        
+            new Entity(-50, -60, 20, 20, "rgb(200 0 0)", 0.95, 3, 0.08, 0.07);   //x, y, w, h, color, slipperness, jump_accel, gravity, x_accel
+        
+            player = new Player(0.0, -50.0, 10, 10);
 
-new Entity(-50, -60, 20, 20, "rgb(200 0 0)", 0.95, 3, 0.08, 0.07);   //x, y, w, h, color, slipperness, jump_accel, gravity, x_accel
-
-let player = new Player(0.0, -50.0, 10, 10);
-
+            break;
+    }
+}
 
 
 
@@ -275,17 +295,19 @@ function start() {
     } else if (gameCanvas.msRequestFullscreen) {
         gameCanvas.msRequestFullscreen();
     }
-
-    window.onresize();
+    gaming = true;
+    loadLevel(0);
     lastFrame = performance.now();
-    setInterval(logic, 1000/tps);
-    window.requestAnimationFrame(render);
+    clearInterval(logicInterval);
+    logicInterval = setInterval(logic, 1000/tps);
+    setTimeout(() => window.requestAnimationFrame(render), 5);
 }
 
 
 document.addEventListener("fullscreenchange", () => {
     if (!document.fullscreenElement) {
         gameCanvas.style.display = "none";
+        gaming = false;
     }
 });
 
@@ -293,6 +315,7 @@ function logic() {
     for (let entity of entitys) {
         entity.physics();
     }
+    lastPhysics = performance.now();
 }
 
 function render() {
@@ -308,7 +331,7 @@ function render() {
     ctx.fillText(fps.toString()+" FPS", 80,80);
 
     for (let object of objects) {
-        object.render(mx, my, scale);
+        object.render(mx, my, scale, lastPhysics);
     }
 
     if (countedFrames++ >= 100) {
@@ -316,7 +339,8 @@ function render() {
         lastFrame = performance.now();
         countedFrames = 0;
     }
-    window.requestAnimationFrame(render);
+    if (gaming)
+        window.requestAnimationFrame(render);
 }
 
 function min(x,y) {
@@ -330,52 +354,22 @@ function max(x,y) {
 
 
 
-
-/*
-
-function physics() {
-    player.vx *= 0.95;
-    ong = inWall(player.x, player.y+0.01) != null;
-
-    if ((keys["w"] || keys["ArrowUp"]) && ong) {
-        player.vy = -3;
-    }
-    if (player.vy != 0 || !ong)
-        player.vy += 0.07;
-    if (keys["a"] || keys["ArrowLeft"]) {
-        player.vx -= 0.07;
-    }
-    if (keys["d"] || keys["ArrowRight"]) {
-        player.vx += 0.07;
-    }
-    if (collidingObject = inWall(player.x, player.y+player.vy)) {
-        clipTo(collidingObject);        
-    }
-    if (collidingObject = inWall(player.x+player.vx, player.y)) {
-        clipTo(collidingObject);
-    }
-    /*if (collidingObject = inWall(player.x+player.vx,player.y+player.vy) || inWall(x,player.y)) {
-        player.vx = 0;
-        //player.vy = 0;
-    }*//*
-    player.x += player.vx;
-    player.y += player.vy;
-    if (player.y > 100)
-        die();
-    for (let spike of spikes) {
-        if (isColliding(player, spike))
-            die();
-    }
-
-}*/
-
 window.onresize = function () {
     gameCanvas.width = window.innerWidth;
     gameCanvas.height = window.innerHeight;
 }
 
-
+const konami = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"]
+var konami_idx = 0;
 window.addEventListener("keydown", (event) => {
+    if(event.code == konami[konami_idx]) {
+        if (++konami_idx == konami.length) {
+            player.die = () => {};
+        } 
+    }
+    else {
+        konami_idx = 0
+    }
     keys[event.key] = true;
 });
 
@@ -387,3 +381,4 @@ window.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
 });
+
