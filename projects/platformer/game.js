@@ -15,7 +15,7 @@ let fps = 0;
 let collidingObject;
 let scale; //height equals ppL LE
 const tps = 100;    //ticks per second
-const ppL = 1000;    //Pixels per Längeneinheit
+const ppL = 300;    //Pixels per Längeneinheit
 let mouseX = 0;
 let mouseY = 0;
 let player;
@@ -142,7 +142,7 @@ class Entity extends GameObject {
         if (this.y > 500)
             this.die();
         for (let spike of spikes) {
-            if (isColliding(this, spike));
+            if (isColliding(this, spike))
                 this.die();
         }
     }
