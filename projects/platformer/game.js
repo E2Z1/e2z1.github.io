@@ -27,6 +27,7 @@ let objects = [];
 let entitys = [];
 let solid = [];
 let actionAreas = [];
+let secretIslandSpawned = false;
 
 
 class GameObject {
@@ -192,8 +193,8 @@ class Fist extends GameObject { //coukld also have used entity but physics is re
         let dx = (mouseX-mx)/scale + player.x - x;   //calculate vx and vy so the total velocity is always the same
         let dy = (mouseY-my)/scale + player.y - y;     //mx + Math.floor((this.x - player.x)*scale), my + Math.floor((this.y - player.y)*scale)
         let velocity_scale = Math.sqrt((dx**2 + dy**2)/velocity);
-        this.vx = dx/velocity_scale;
-        this.vy = dy/velocity_scale;
+        this.vx = dx/velocity_scale + player.vx;
+        this.vy = dy/velocity_scale + player.vy;
         this.initX = x;
         this.initY = y;
         this.player = player;
@@ -311,18 +312,21 @@ function loadLevel(lvl) {
             new Spike(390, 170);
 
             new Button(305, 40, 10, 10, () => {
-                new Ground(530, -30, 50, 10);
-                new Button(570, -40, 10, 10, () => {
-                    player.x = 0;
-                    player.y = -100;
-                }, "rgb(255 0 0)");
-                new MovableText(590, -40, "<-- Another level\n source: trust me bro\noki doki")
+                if (!secretIslandSpawned) {
+                    new Ground(530, -30, 50, 10);
+                    new Button(570, -40, 10, 10, () => {loadLevel(1)}, "rgb(255 0 0)");
+                    new MovableText(590, -40, "<-- Another level\n source: trust me bro");
+                    secretIslandSpawned = true;
+                }
             });
         
             new Entity(-50, -60, 20, 20, "rgb(200 0 0)", 0.95, 3, 0.08, 0.07);   //x, y, w, h, color, slipperness, jump_accel, gravity, x_accel
         
             player = new Player(0.0, -50.0, 10, 10);
 
+            break;
+        case 1:
+            new Ground(-100, 0, 130, 10);
             break;
     }
 }
