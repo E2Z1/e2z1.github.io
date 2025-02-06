@@ -26,6 +26,7 @@ let gaming;
 let objects = [];
 let entitys = [];
 let solid = [];
+let actionAreas = [];
 
 
 class GameObject {
@@ -49,6 +50,43 @@ class GameObject {
         let addY = this.vy ? this.vy * physicsThingo : 0;
         ctx.fillStyle = this.color;
         ctx.fillRect(mx + Math.floor((this.x + addX - (player.x + addPLayerX))*scale), my + Math.floor((this.y +addY - (player.y+addPlayerY))*scale), this.w * scale, this.h * scale);
+    }
+}
+
+class MovableText extends GameObject {
+    constructor (x, y, text, color="rgb(255 255 255)", font="50px Arial") {
+        super(x, y, 0, 0, color);
+        this.font = font;
+        this.text = text;
+    }
+    render(mx, my, scale, lastPhysics) {
+        ctx.fillStyle = this.color;
+        ctx.font = this.font;
+        let lines = this.text.split('\n');
+        let lineHeight = Number(this.font.split("px ")[0])*1.2;
+
+        let physicsThingo = doInterpolation ? (performance.now() - lastPhysics) / (1000/tps) : 0;
+        let addPLayerX = player.vx * physicsThingo;
+        let addPlayerY = player.vy * physicsThingo;
+        let addX = this.vx ? this.vx * physicsThingo : 0;
+        let addY = this.vy ? this.vy * physicsThingo : 0;
+        for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], mx + Math.floor((this.x + addX - (player.x + addPLayerX))*scale), my + Math.floor((this.y +addY - (player.y+addPlayerY))*scale + i*lineHeight));
+        }
+    }
+}
+
+class Button extends GameObject {
+    constructor (x, y, w, h, func, color="rgb(0 0 255)") {
+        super(x, y, w, h, color);
+        this.func = func;
+        this.func = func;
+        actionAreas.push(this);
+    }
+    logic() {
+        if (player.alive && isColliding(this, player)) {
+            this.func();
+        }
     }
 }
 
@@ -210,6 +248,11 @@ class Player extends Entity {
         return;
     }
 
+    setCheckpoint() {
+        this.initX = this.x;
+        this.initY = this.y;
+    }
+
     damage() {
         this.die();
     }
@@ -254,6 +297,10 @@ function loadLevel(lvl) {
             new Ground(410, -40, 30, 100);
             new Ground(420, 200, 10, 10);
             new Ground(370, 180, 30, 10);
+            new Ground(330, 140, 30, 10);
+            new Ground(300, 120, 15, 10);
+            new Ground(330, 80, 60, 10);
+            new Ground(295, 50,  30, 10);
 
 
             new Spike(-80, -10);
@@ -261,6 +308,16 @@ function loadLevel(lvl) {
             new Spike(60, -30);
             new Spike(120, -80);
             new Spike(330, 10, 80, 10);
+            new Spike(390, 170);
+
+            new Button(305, 40, 10, 10, () => {
+                new Ground(530, -30, 50, 10);
+                new Button(570, -40, 10, 10, () => {
+                    player.x = 0;
+                    player.y = -100;
+                }, "rgb(255 0 0)");
+                new MovableText(590, -40, "<-- Another level\n source: trust me bro\noki doki")
+            });
         
             new Entity(-50, -60, 20, 20, "rgb(200 0 0)", 0.95, 3, 0.08, 0.07);   //x, y, w, h, color, slipperness, jump_accel, gravity, x_accel
         
@@ -315,6 +372,9 @@ function logic() {
     for (let entity of entitys) {
         entity.physics();
     }
+    for (let area of actionAreas) {
+        area.logic();
+    }
     lastPhysics = performance.now();
 }
 
@@ -361,14 +421,33 @@ window.onresize = function () {
 
 const konami = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"]
 var konami_idx = 0;
+var isKonami = false;
 window.addEventListener("keydown", (event) => {
     if(event.code == konami[konami_idx]) {
         if (++konami_idx == konami.length) {
+            isKonami = true;
             player.die = () => {};
         } 
     }
     else {
         konami_idx = 0
+    }
+    if (event.code == "KeyR" && isKonami) {
+        if (player.alive) {
+            player.alive = false;
+            player.color = "rgb(100 100 100 / 80%)"
+            setTimeout(() => {
+                player.x = player.initX;
+                player.y = player.initY;
+                player.vx = 0.0;
+                player.vy = 0.0;
+                player.alive = true;
+                player.color = "rgb(0 255 0)";
+            }, 1000);
+        }
+    }
+    if (event.code == "KeyL" && isKonami) {
+        player.setCheckpoint();
     }
     keys[event.key] = true;
 });
