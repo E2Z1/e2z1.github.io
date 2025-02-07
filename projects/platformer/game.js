@@ -259,7 +259,9 @@ class Player extends Entity {
 
     physics() {
         if (fly) {
-            if ((keys["w"] || keys["ArrowUp"]) && this.ong) {
+            this.vx = 0;
+            this.vy = 0;
+            if ((keys["w"] || keys["ArrowUp"])) {
                 this.y -= 2;
             }
             if (keys["a"] || keys["ArrowLeft"]) {
