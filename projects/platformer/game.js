@@ -6,8 +6,6 @@ let mx = 0, my = 0;
 
 let keys = {};
 
-//const ground = [{x: -100, y: 0, w: 130, h:10}, {x: 30, y: -50, w: 30, h:60}, {x: 60, y: -70, w: 700, h:20}, ];
-const spikes = [];
 let lastPhysics;
 let lastFrame;
 let countedFrames = 0;
@@ -27,6 +25,7 @@ let objects = [];
 let entitys = [];
 let solid = [];
 let actionAreas = [];
+let spikes = [];
 let secretIslandSpawned = false;
 
 
@@ -259,6 +258,21 @@ class Player extends Entity {
     }
 
     physics() {
+        if (fly) {
+            if ((keys["w"] || keys["ArrowUp"]) && this.ong) {
+                this.y -= 2;
+            }
+            if (keys["a"] || keys["ArrowLeft"]) {
+                this.x -= 2;
+            }
+            if (keys["s"] || keys["ArrowDown"]) {
+                this.y += 2;
+            }
+            if (keys["d"] || keys["ArrowRight"]) {
+                this.x += 2;
+            }
+            return
+        }
         if (this.alive) {
             if ((keys["w"] || keys["ArrowUp"]) && this.ong) {
                 this.vy = this.jump_accel;
@@ -283,6 +297,9 @@ class Player extends Entity {
 function loadLevel(lvl) {
     objects = [];
     entitys = [];
+    spikes = [];
+    actionAreas = [];
+    solid = [];
     switch (lvl) {
         case 0:
             new Ground(-100, 0, 130, 10);
@@ -299,9 +316,10 @@ function loadLevel(lvl) {
             new Ground(420, 200, 10, 10);
             new Ground(370, 180, 30, 10);
             new Ground(330, 140, 30, 10);
-            new Ground(300, 120, 15, 10);
+            new Ground(320, 120, 15, 10);
             new Ground(330, 80, 60, 10);
             new Ground(295, 50,  30, 10);
+            new Ground(250, 70,  10, 10)
 
 
             new Spike(-80, -10);
@@ -327,6 +345,8 @@ function loadLevel(lvl) {
             break;
         case 1:
             new Ground(-100, 0, 130, 10);
+            player = new Player(0.0, -50.0, 10, 10);
+
             break;
     }
 }
@@ -424,8 +444,9 @@ window.onresize = function () {
 }
 
 const konami = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"]
-var konami_idx = 0;
-var isKonami = false;
+let konami_idx = 0;
+let isKonami = false;
+let fly = false;
 window.addEventListener("keydown", (event) => {
     if(event.code == konami[konami_idx]) {
         if (++konami_idx == konami.length) {
@@ -452,6 +473,9 @@ window.addEventListener("keydown", (event) => {
     }
     if (event.code == "KeyL" && isKonami) {
         player.setCheckpoint();
+    }
+    if (event.code == "KeyF" && isKonami) {
+        fly = !fly;
     }
     keys[event.key] = true;
 });
