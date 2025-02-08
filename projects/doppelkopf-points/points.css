@@ -66,3 +66,8 @@ th {
 td {
     border-top: 2px solid white;
 }
+
+canvas {
+    max-width: 100%;
+    overflow-x: scroll;
+}

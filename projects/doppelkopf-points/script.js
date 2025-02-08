@@ -55,6 +55,7 @@ function getAll() {
                     html += `<td>${round.bock}</td></tr>`;
                 }
                 table.innerHTML = html;
+                doStats(json.data, json.users);
             } else console.error(json.message);
         });
 }
@@ -141,6 +142,146 @@ function getAddUsers() {
                 }
             } else console.error(json.message);
         });
+}
+
+class BarChart {
+    constructor (title, data, canvas, isPercentage) {
+        this.title = title;
+        this.data = data;
+        this.ctx = canvas.getContext("2d");
+        this.canvas = canvas;
+        this.isPercentage = isPercentage;
+        this.draw();
+    }
+    draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.font = "14px Arial";
+        let maxVal = Math.max(...Object.values(this.data));
+        if (maxVal == 0)
+            maxVal = 1;     //to not divide by zero
+        const minVal = Math.min(...Object.values(this.data));   //wanted to make avg win/lose points in one plot -> negative values
+                                                                //and total points ofc
+        const barWidth = (this.canvas.width - 20) / (Object.keys(this.data).length * 1.5);
+        const scaleFactor = (this.canvas.height * 0.9 - 20) / maxVal;
+
+        
+
+        for (let i = 0; i < Object.keys(this.data).length; i++) {
+            const key = Object.keys(this.data)[i];
+            const val = this.data[key];
+            const x = 20 + i * (barWidth) + barWidth * 0.25;
+            const height = val * scaleFactor;
+            const y = (this.canvas.height * 0.9) - height;
+
+            this.ctx.fillStyle = "#FFF";
+            this.ctx.fillRect(x, y, barWidth/1.5, height);
+    
+            let valText = "" + Math.round(val*100)/100;
+            if (this.isPercentage) {
+                valText = "" + Math.round(val*100) + "%";
+            }
+            this.ctx.fillText(valText, x, y - 5);
+    
+            this.ctx.fillText(key.slice(0,4), x, this.canvas.height - 4);
+        }
+    }
+}
+
+function doStats(data, users) {
+    let userNames = [];
+    let participation = {};
+    let wins = {};
+    let soli = {};
+    let eintragender = {};
+    let winPoints = {};
+    let losePoints = {};
+    let bocks = 0.0;
+
+    for (let user of users) {
+        userNames.push(user.name);
+        participation[user.name] = 0;
+        soli[user.name] = 0;
+        winPoints[user.name] = 0;
+        losePoints[user.name] = 0;
+        wins[user.name] = 0;
+        eintragender[user.name] = 0;
+    }
+
+    for (let round of data) {
+        if (Object.keys(round.points).length == 0)
+            continue;
+
+
+
+        if (round.eintragender != null && round.eintragender != "" && round.eintragender != " ") {
+            eintragender[round.eintragender] += 1;
+        }
+        if (Number(round.bock) > 0) {
+            bocks += 1.0;
+        }
+        for (let player of Object.keys(round.points)) {
+            participation[player] += 1;
+            if (round.points[player] > 0) {
+                wins[player] += 1;
+                winPoints[player] += round.points[player];
+            } else if (round.points[player] < 0) {
+                losePoints[player] -= round.points[player];
+            }
+
+        }
+
+        //prob overly complicated but whatever
+        const count = {};
+        for (let num of Object.values(round.points)) {
+            count[num] = (count[num] || 0) + 1;
+        }
+        if (Object.values(count)[0] == 3) {
+            for (let player of Object.keys(round.points)) {
+                if (round.points[player] == Number(Object.keys[1])) {
+                    soli[player] += 1;
+                }
+            }
+            
+        } else if (Object.values(count)[1] == 3) {
+            for (let player of Object.keys(round.points)) {
+                if (round.points[player] == Number(Object.keys(count)[0])) {
+                    soli[player] += 1;
+                }
+            }
+        }
+
+
+    }
+    for (let user of userNames) {
+        if (data.length-1 > 1) {
+            if (participation[user] > 0) {
+                if (wins[user] > 0) {
+                    winPoints[user] /= wins[user];
+                }
+                if (participation[user] - wins[user] > 0) { //technically inaccurate beacuse of round with 0 points but whatever
+                    losePoints[user] /= participation[user] - wins[user];
+                }
+                wins[user] /= participation[user];
+                soli[user] /= participation[user];
+                
+            }
+            participation[user] /= data.length-1;
+            eintragender[user] /= data.length-1;
+            
+        }
+
+    }
+    if (data.length-1 > 1) {
+        bocks /= data.length-1;
+    }
+
+    new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage
+    new BarChart("Average Win points", winPoints, document.getElementById("winP"), false);    //title, data, canvas, siPercentage
+    new BarChart("Average Lose points", losePoints, document.getElementById("loseP"), false);    //title, data, canvas, siPercentage
+    new BarChart("Wins", wins, document.getElementById("wins"), true);    //title, data, canvas, siPercentage
+    new BarChart("Eintragender", eintragender, document.getElementById("eintragender"), true);    //title, data, canvas, siPercentage
+    new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
+    document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
 }
 
 if (document.getElementById("cur")) {
