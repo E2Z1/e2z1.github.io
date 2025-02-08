@@ -18,7 +18,7 @@ function getCurrent() {
                 for (let user of json.users) {
                     html += `<th>${user.name}</th>`;
                 }
-                html += `<th>Böcke</th></tr><tr><td>${json.data.id+1}</td>`;
+                html += `<th>Böcke</th></tr><tr><td>${json.data.id}</td>`;
                 for (let user of json.users) {
                     html += `<td>${user.points}</td>`;
                 }
@@ -48,7 +48,7 @@ function getAll() {
                     for (let value of Object.keys(round.points)) {
                         points[users[value]] += round.points[value];
                     }
-                    html += `<tr><td>${round.id+1}</td>`;
+                    html += `<tr><td>${round.id}</td>`;
                     for (let i = 0; i < json.users.length; i++) {
                         html += `<td>${points[i]}</td>`;
                     }
@@ -62,6 +62,7 @@ function addRound() {
     const personFields = document.getElementById("personFields");
     let sum = 0;
     let data = {}
+    let valuesForNext = [];
     const persons = personFields.querySelectorAll(".person");
     const numbers = personFields.querySelectorAll(".number");
     for (let i = 0; i < 4; i++) {
@@ -69,22 +70,22 @@ function addRound() {
         if (number != Number(number) || Number(number) == 0)
             return;
         data[persons[i].value] = Number(number);
+        valuesForNext.push(persons[i].value);
         sum += Number(number);
     }
+    valuesForNext.push(personFields.querySelector("#eintragender").value);
+    localStorage.setItem("lastPlayers", JSON.stringify(valuesForNext));
+    if (Object.keys(data).length != 4)
+        return
     if (sum !== 0)
         return;
-    console.log({
-        points: data,
-        eintraeger: personFields.querySelector("#eintragender").value,
-        bock: personFields.querySelector("#bock").value == "on"
-    })
 
     fetch(server+"/functions/v1/addRound", {
         method: "POST",
         body: JSON.stringify({
             points: data,
             eintraeger: personFields.querySelector("#eintragender").value,
-            bock: personFields.querySelector("#bock").value == "on"
+            bock: personFields.querySelector("#bock").checked
         }),
         headers: {
             "Content-Type": "application/json; charset=UTF-8"
@@ -134,6 +135,10 @@ function getAddUsers() {
                 <button onclick="addRound()">Add Round</button>
 
                 `;
+                const lastValues = localStorage.getItem("lastPlayers") ? JSON.parse(localStorage.getItem("lastPlayers")) : [" ", " ", " ", " ", " "];
+                for (let i = 0; i < personFields.querySelectorAll("select").length; i++) {
+                    personFields.querySelectorAll("select")[i].value = lastValues[i];
+                }
             } else console.error(json.message);
         });
 }
