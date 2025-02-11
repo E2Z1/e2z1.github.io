@@ -12,6 +12,8 @@ if (!localStorage.getItem("server")) {
     setAddr();
 }
 const server = localStorage.getItem("server");
+const quotes = ["Doppelkopf ist die META", "Skillissue", "Der Sinn des Lebens ist Doppelkopf", "Ein Tag ohne Doppelkopf ist ein Tag ohne Sinn", "Entweder spielt man Doppelkopf oder man sieht das eigene Leben an einem vorbeiziehen"]
+document.getElementById("quote").innerText = "„" + quotes[Math.floor(Math.random() * quotes.length)] + "“";
 
 function getCurrent() {
     fetch(server+"/functions/v1/getCurrent", {
