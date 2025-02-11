@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Asar&display=swap');
 
-
 @property --c1 {
   syntax: '<color>';
   initial-value: #232369;
@@ -14,7 +13,7 @@
 }
 
 * {
-    font-family: 'Asar', serif;
+  font-family: 'Asar', serif;
 }
 
 

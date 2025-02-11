@@ -71,3 +71,30 @@ canvas {
     max-width: 100%;
     overflow-x: scroll;
 }
+
+
+.popUp {
+    background: linear-gradient(180deg, #f1f1f1 0%, #ffffff 100%);
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 10px 20px 0 #000000;
+    padding: 10px;
+    z-index: 20;
+    color: var(--c1);
+}
+
+.popUp button {
+    color: white;
+    background-color: var(--c1);
+    margin: 5px;
+}
+.popUp input {
+    background-color: var(--c1);
+    color: white;
+}

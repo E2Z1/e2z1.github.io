@@ -1,10 +1,17 @@
-
+function setAddr() {
+    document.body.innerHTML += `
+    
+  <div class="popUp">
+    <h3>Enter the start of the server address:</h3>
+    <input type="text" name="add" id="srv_addr">
+    <button onclick="localStorage.setItem('server', 'https://'+document.getElementById('srv_addr').value+'dymszuuaqyugwf.supabase.co'); window.location.reload()">Save</button>
+  </div>`
+    
+}
 if (!localStorage.getItem("server")) {
-    let start = prompt('start of server address');
-    localStorage.setItem("server", "https://"+start+"dymszuuaqyugwf.supabase.co");
+    setAddr();
 }
 const server = localStorage.getItem("server");
-
 
 function getCurrent() {
     fetch(server+"/functions/v1/getCurrent", {
