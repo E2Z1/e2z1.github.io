@@ -140,7 +140,7 @@ function getAddUsers() {
                 </select>
                 <br>
                 <br>
-                <label>Bock? </label>
+                <label>New Bocks? </label>
                 <input type="checkbox" id="bock">
                 <br>
 
