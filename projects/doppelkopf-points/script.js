@@ -203,6 +203,7 @@ function doStats(data, users) {
     let participation = {};
     let wins = {};
     let soli = {};
+    let soliWins = {};
     let eintragender = {};
     let winPoints = {};
     let losePoints = {};
@@ -212,6 +213,7 @@ function doStats(data, users) {
         userNames.push(user.name);
         participation[user.name] = 0;
         soli[user.name] = 0;
+        soliWins[user.name] = 0;
         winPoints[user.name] = 0;
         losePoints[user.name] = 0;
         wins[user.name] = 0;
@@ -250,6 +252,9 @@ function doStats(data, users) {
             for (let player of Object.keys(round.points)) {
                 if (round.points[player] == Number(Object.keys[1])) {
                     soli[player] += 1;
+                    if (round.points[player] > 0) {
+                        soliWins[player] += 1;
+                    }
                 }
             }
             
@@ -257,6 +262,9 @@ function doStats(data, users) {
             for (let player of Object.keys(round.points)) {
                 if (round.points[player] == Number(Object.keys(count)[0])) {
                     soli[player] += 1;
+                    if (round.points[player] > 0) {
+                        soliWins[player] += 1;
+                    }
                 }
             }
         }
@@ -271,6 +279,9 @@ function doStats(data, users) {
                 }
                 if (participation[user] - wins[user] > 0) { //technically inaccurate beacuse of round with 0 points but whatever
                     losePoints[user] /= participation[user] - wins[user];
+                }
+                if (soli[user] > 0) {
+                    soliWins[user] /= soli[user];
                 }
                 wins[user] /= participation[user];
                 soli[user] /= participation[user];
@@ -292,6 +303,7 @@ function doStats(data, users) {
     new BarChart("Wins", wins, document.getElementById("wins"), true);    //title, data, canvas, siPercentage
     new BarChart("Eintragender", eintragender, document.getElementById("eintragender"), true);    //title, data, canvas, siPercentage
     new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
+    new BarChart("Soli Wins", soliWins, document.getElementById("soliWins"), true);    //title, data, canvas, siPercentage
     document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
 }
 
