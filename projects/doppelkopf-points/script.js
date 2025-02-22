@@ -170,10 +170,11 @@ class BarChart {
         let maxVal = Math.max(...Object.values(this.data));
         if (maxVal == 0)
             maxVal = 1;     //to not divide by zero
-        const minVal = Math.min(...Object.values(this.data));   //wanted to make avg win/lose points in one plot -> negative values
+        const minVal = Math.min(...Object.values(this.data), 0);   //wanted to make avg win/lose points in one plot -> negative values
                                                                 //and total points ofc
         const barWidth = (this.canvas.width - 20) / (Object.keys(this.data).length * 1.5);
-        const scaleFactor = (this.canvas.height * 0.9 - 20) / maxVal;
+        const scaleFactor = (this.canvas.height * 0.9 - 20) / (maxVal - minVal);
+        const zeroPoint = this.canvas.height * 0.9 + minVal * scaleFactor;
 
         
 
@@ -182,7 +183,7 @@ class BarChart {
             const val = this.data[key];
             const x = 20 + i * (barWidth) + barWidth * 0.25;
             const height = val * scaleFactor;
-            const y = (this.canvas.height * 0.9) - height;
+            const y = zeroPoint - height;
 
             this.ctx.fillStyle = "#FFF";
             this.ctx.fillRect(x, y, barWidth/1.5, height);
@@ -191,9 +192,16 @@ class BarChart {
             if (this.isPercentage) {
                 valText = "" + Math.round(val*100) + "%";
             }
-            this.ctx.fillText(valText, x, y - 5);
-    
-            this.ctx.fillText(key.slice(0,4), x, this.canvas.height - 4);
+            if (val < 0) {
+                this.ctx.fillText(valText, x, zeroPoint - height + 16);
+            } else {
+                this.ctx.fillText(valText, x, zeroPoint - height - 4);
+            }
+            if (val < 0) {
+                this.ctx.fillText(key.slice(0,4), x, zeroPoint - 4);
+            } else {
+                this.ctx.fillText(key.slice(0,4), x, zeroPoint + 16);
+            }
         }
     }
 }
@@ -207,6 +215,8 @@ function doStats(data, users) {
     let eintragender = {};
     let winPoints = {};
     let losePoints = {};
+    let totalPoints = {};
+    let noBockPoints = {};
     let bocks = 0.0;
 
     for (let user of users) {
@@ -217,9 +227,12 @@ function doStats(data, users) {
         winPoints[user.name] = 0;
         losePoints[user.name] = 0;
         wins[user.name] = 0;
+        totalPoints[user.name] = 0;
+        noBockPoints[user.name] = 0;
         eintragender[user.name] = 0;
     }
 
+    let isBock = false;
     for (let round of data) {
         if (Object.keys(round.points).length == 0)
             continue;
@@ -234,6 +247,12 @@ function doStats(data, users) {
         }
         for (let player of Object.keys(round.points)) {
             participation[player] += 1;
+            totalPoints[player] += round.points[player];
+            if (isBock) {
+                noBockPoints[player] += round.points[player]/2;
+            } else {
+                noBockPoints[player] += round.points[player];
+            }
             if (round.points[player] > 0) {
                 wins[player] += 1;
                 winPoints[player] += round.points[player];
@@ -268,7 +287,11 @@ function doStats(data, users) {
                 }
             }
         }
-
+        if (round.bock > 0) {
+            isBock = true;
+        } else {
+            isBock = false;
+        }
 
     }
     for (let user of userNames) {
@@ -304,6 +327,8 @@ function doStats(data, users) {
     new BarChart("Eintragender", eintragender, document.getElementById("eintragender"), true);    //title, data, canvas, siPercentage
     new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
     new BarChart("Soli Wins", soliWins, document.getElementById("soliWins"), true);    //title, data, canvas, siPercentage
+    new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
+    new BarChart("No Bocks", noBockPoints, document.getElementById("noBock"), false);    //title, data, canvas, siPercentage
     document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
 }
 
