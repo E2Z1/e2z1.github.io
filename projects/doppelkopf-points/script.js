@@ -250,7 +250,7 @@ function doStats(data, users) {
         }
         if (Object.values(count)[0] == 3) {
             for (let player of Object.keys(round.points)) {
-                if (round.points[player] == Number(Object.keys[1])) {
+                if (round.points[player] == Number(Object.keys(count)[1])) {
                     soli[player] += 1;
                     if (round.points[player] > 0) {
                         soliWins[player] += 1;
