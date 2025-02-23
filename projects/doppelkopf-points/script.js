@@ -291,6 +291,7 @@ class Graph {
 
             this.ctx.fillStyle = colors[i];
             this.ctx.strokeStyle = colors[i];
+            this.ctx.lineWidth = this.canvas.height/300;
 
             this.ctx.beginPath();
             this.ctx.moveTo(0, zeroPointY);
