@@ -206,6 +206,108 @@ class BarChart {
     }
 }
 
+function getDistinctColors(n) {
+    const colors = [];
+    const hueStep = 360 / n;    //to be differntaible from purple
+    
+    for (let i = 0; i < n; i++) {
+      const hue = i * hueStep;
+      const color = `hsl(${hue}, 100%, 50%)`;
+      colors.push(color);
+    }
+    if (n == 9) {   //for now
+        return ['hsl(0, 100%, 50%)','hsl(25, 100.00%, 50.00%)','hsl(57, 100.00%, 50.00%)',
+            'hsl(84, 100.00%, 72.50%)','hsl(160, 100%, 50%)','hsl(178, 100.00%, 50.00%)',
+            'hsl(286, 100.00%, 82.70%)','hsl(316, 100%, 71%)','hsl(320, 100.00%, 56.90%)']
+    }
+    return colors;
+  }
+
+
+
+
+class Graph {
+    constructor (title, data, canvas) {
+        this.title = title;
+        this.data = data;
+        this.ctx = canvas.getContext("2d");
+        this.canvas = canvas;
+        this.draw();
+        this.canvas.onclick = event => {
+            if (event.detail == 2) {
+                this.canvas.requestFullscreen();
+            }
+        }
+        let self = this;
+        const w = canvas.width;
+        const h = canvas.height;
+        window.addEventListener('resize', function() {
+            if (document.fullscreenElement) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                self.draw()
+            } else {
+                canvas.width = w;
+                canvas.height = h;
+                self.draw()
+            }
+        });
+    }
+    draw() {
+        const colors = getDistinctColors(Object.keys(this.data).length);
+        let maxVal = 0;
+        let minVal = 0;
+        let length = 0;
+
+        for (let i = 0; i < Object.keys(this.data).length; i++) {
+            const cur = this.data[Object.keys(this.data)[i]];
+            for (let j = 0; j < cur.length; j++) {
+                if (cur[j][1] > maxVal) {
+                    maxVal = cur[j][1];
+                }
+                if (cur[j][1] < minVal) {
+                    minVal = cur[j][1];
+                }
+            }
+            if (cur.length > 0 && cur[cur.length-1][0] > length) {
+                length = cur[cur.length-1][0];
+            }
+        }
+
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.font = `${this.canvas.height/20}px Arial`;
+        if (maxVal == 0)
+            maxVal = 1;     //to not divide by zero
+        const scaleFactorY = (this.canvas.height * 0.9 - 20) / (maxVal - minVal);
+        const scaleFactorX = (this.canvas.width * 0.9 - 20) / length;
+        const zeroPointY = this.canvas.height * 0.9 + minVal * scaleFactorY;
+
+        
+
+        for (let i = 0; i < Object.keys(this.data).length; i++) {
+            const key = Object.keys(this.data)[i];
+            const val = this.data[key];
+
+            this.ctx.fillStyle = colors[i];
+            this.ctx.strokeStyle = colors[i];
+
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, zeroPointY);
+            let tVal;
+            for (let j = 0; j < Object.keys(val).length; j++) {
+                tVal = val[Object.keys(val)[j]];
+                this.ctx.lineTo(tVal[0]*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
+            }
+            this.ctx.lineTo(length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
+            this.ctx.stroke();
+    
+            this.ctx.fillText(key.slice(0,4), length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY+this.canvas.height/60);
+
+        }
+    }
+}
+
 function doStats(data, users) {
     let userNames = [];
     let participation = {};
@@ -217,6 +319,7 @@ function doStats(data, users) {
     let losePoints = {};
     let totalPoints = {};
     let noBockPoints = {};
+    let individualPointHistory = {} //for graph
     let bocks = 0.0;
 
     for (let user of users) {
@@ -230,6 +333,7 @@ function doStats(data, users) {
         totalPoints[user.name] = 0;
         noBockPoints[user.name] = 0;
         eintragender[user.name] = 0;
+        individualPointHistory[user.name] = [];
     }
 
     let isBock = false;
@@ -248,6 +352,13 @@ function doStats(data, users) {
         for (let player of Object.keys(round.points)) {
             participation[player] += 1;
             totalPoints[player] += round.points[player];
+
+            let oldVal = 0;
+            if (individualPointHistory[player].length > 0) {
+                oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
+            }
+
+            individualPointHistory[player].push([round.id, oldVal + round.points[player]]);
             if (isBock) {
                 noBockPoints[player] += round.points[player]/2;
             } else {
@@ -319,7 +430,8 @@ function doStats(data, users) {
     if (data.length-1 > 1) {
         bocks /= data.length-1;
     }
-
+    new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
+    new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
     new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage
     new BarChart("Average Win points", winPoints, document.getElementById("winP"), false);    //title, data, canvas, siPercentage
     new BarChart("Average Lose points", losePoints, document.getElementById("loseP"), false);    //title, data, canvas, siPercentage
@@ -327,7 +439,6 @@ function doStats(data, users) {
     new BarChart("Eintragender", eintragender, document.getElementById("eintragender"), true);    //title, data, canvas, siPercentage
     new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
     new BarChart("Soli Wins", soliWins, document.getElementById("soliWins"), true);    //title, data, canvas, siPercentage
-    new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
     new BarChart("No Bocks", noBockPoints, document.getElementById("noBock"), false);    //title, data, canvas, siPercentage
     document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
 }
