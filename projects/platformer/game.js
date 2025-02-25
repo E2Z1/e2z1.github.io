@@ -18,16 +18,20 @@ let mouseX = 0;
 let mouseY = 0;
 let player;
 let logicInterval;
-const doInterpolation = true;
+const interpolation = true;
 let gaming;
 
 let objects = [];
 let entitys = [];
 let solid = [];
-let actionAreas = [];
+let logicObjs = [];
 let spikes = [];
 let secretIslandSpawned = false;
 
+
+function doInterpolation() {
+    return interpolation && !edit;
+}
 
 class GameObject {
     constructor (x, y, w, h, color) {
@@ -43,7 +47,7 @@ class GameObject {
             objects.splice(objects.findIndex(object => object == this), 1);
     }
     render(mx, my, scale, lastPhysics) {
-        let physicsThingo = doInterpolation ? (performance.now() - lastPhysics) / (1000/tps) : 0;
+        let physicsThingo = doInterpolation() ? (performance.now() - lastPhysics) / (1000/tps) : 0;
         let addPLayerX = player.vx * physicsThingo;
         let addPlayerY = player.vy * physicsThingo;
         let addX = this.vx ? this.vx * physicsThingo : 0;
@@ -65,7 +69,7 @@ class MovableText extends GameObject {
         let lines = this.text.split('\n');
         let lineHeight = Number(this.font.split("px ")[0])*1.2;
 
-        let physicsThingo = doInterpolation ? (performance.now() - lastPhysics) / (1000/tps) : 0;
+        let physicsThingo = doInterpolation() ? (performance.now() - lastPhysics) / (1000/tps) : 0;
         let addPLayerX = player.vx * physicsThingo;
         let addPlayerY = player.vy * physicsThingo;
         let addX = this.vx ? this.vx * physicsThingo : 0;
@@ -80,8 +84,7 @@ class Button extends GameObject {
     constructor (x, y, w, h, func, color="rgb(0 0 255)") {
         super(x, y, w, h, color);
         this.func = func;
-        this.func = func;
-        actionAreas.push(this);
+        logicObjs.push(this);
     }
     logic() {
         if (player.alive && isColliding(this, player)) {
@@ -90,10 +93,16 @@ class Button extends GameObject {
     }
 }
 
+
 class Ground extends GameObject {
     constructor (x, y, w, h) {
         super(x, y, w, h, "rgb(255 255 255)");
         solid.push(this);
+    }
+    delete() {
+        super.delete();
+        if (solid.findIndex(object => object == this) != -1)
+            solid.splice(solid.findIndex(object => object == this), 1);
     }
 }
 
@@ -101,6 +110,11 @@ class Spike extends GameObject {
     constructor (x, y, w=10, h=10) {
         super(x, y, w, h, "rgb(255 0 0)");
         spikes.push(this);
+    }
+    delete() {
+        super.delete();
+        if (spikes.findIndex(object => object == this) != -1)
+            spikes.splice(spikes.findIndex(object => object == this), 1);
     }
 }
 
@@ -210,13 +224,13 @@ class Fist extends GameObject { //coukld also have used entity but physics is re
     physics() {
         this.x += this.vx;
         this.y += this.vy;
-        if (dist(this.x, this.y, this.initX, this.initY) > 20) {
+        if (dist(this.x, this.y, this.player.x, this.player.y) > 40) {
             this.die();
         }
         for (let entity of entitys) {
             if (entity != player && entity != this && isColliding(this, entity)) {
                 entity.damage(this.vx, this.vy);
-                this.die();
+                //this.die(); too op?
             }
         }
     }
@@ -288,19 +302,72 @@ class Player extends Entity {
                 this.vx += this.x_accel;
             }
             if (keys[" "] && this.fist == null) {
-                this.fist = new Fist(this.x+this.w/2-1.5, this.y+this.h/2-1.5, 1, this);
+                this.fist = new Fist(this.x+this.w/2-1.5, this.y+this.h/2-1.5, 3, this);
             }
         }
         super.physics();
     }
 }
 
+class daboss extends Entity {
+    constructor (x, y) {
+        super(x, y, 50, 50, "rgb(200 0 0)", 0.9, -2, 0.08, 0.07);
+        this.hp = 100;
+        this.maxHP = 200;
+        this.bar = new BossBar(this, "rgb(200 0 0)");
+    }
+
+    damage(vx, vy) {
+        if (this.hp > 0) {
+            super.damage(vx, vy);
+            if (this.hp-- <= 0) {
+                this.die();
+            }
+        }
+    }
+
+    die() {
+        super.die();
+        const bar = this.bar;
+        setTimeout(() => {
+            bar.delete();
+        }, 5000);
+    }
+
+    physics() {
+        super.physics();
+        if (this.ong) {
+            if (this.hp < this.maxHP)
+                this.hp++;
+            this.vy = this.jump_accel;
+        }
+    }
+}
+
+class BossBar {
+    constructor (boss, color) {
+        this.boss = boss;
+        this.color = color;
+        objects.push(this);
+    }
+    delete() {
+        if (objects.findIndex(object => object == this) != -1)
+            objects.splice(objects.findIndex(object => object == this), 1);
+    }
+    render() {
+        ctx.fillStyle = "rgb(200 200 200)";
+        ctx.fillRect(gameCanvas.width/4, 10, gameCanvas.width/2, 100);
+
+        ctx.fillStyle = this.color;
+        ctx.fillRect(gameCanvas.width/4+5, 15, (gameCanvas.width/2-10)*(this.boss.hp / this.boss.maxHP), 90);
+    }
+}
 
 function loadLevel(lvl) {
     objects = [];
     entitys = [];
     spikes = [];
-    actionAreas = [];
+    logicObjs = [];
     solid = [];
     switch (lvl) {
         case 0:
@@ -321,7 +388,16 @@ function loadLevel(lvl) {
             new Ground(320, 120, 15, 10);
             new Ground(330, 80, 60, 10);
             new Ground(295, 50,  30, 10);
-            new Ground(250, 70,  10, 10)
+            new Ground(250, 70,  10, 10);
+
+            new Ground(160, 80, 60, 10);
+            new Ground(125, 60, 40, 10);
+            new Ground(75, 50, 30, 10);
+            new Ground(40, 50, 10, 135);
+            new Ground(-300, 50, 10, 135);
+            new Ground(-290, 175, 330, 10);
+            new Ground(-100, -80, 10, 80);
+
 
 
             new Spike(-80, -10);
@@ -330,6 +406,7 @@ function loadLevel(lvl) {
             new Spike(120, -80);
             new Spike(330, 10, 80, 10);
             new Spike(390, 170);
+            new Spike(135, 50);
 
             new Button(305, 40, 10, 10, () => {
                 if (!secretIslandSpawned) {
@@ -340,7 +417,7 @@ function loadLevel(lvl) {
                 }
             });
         
-            new Entity(-50, -60, 20, 20, "rgb(200 0 0)", 0.95, 3, 0.08, 0.07);   //x, y, w, h, color, slipperness, jump_accel, gravity, x_accel
+            new daboss(-50, 60);
         
             player = new Player(0.0, -50.0, 10, 10);
 
@@ -395,20 +472,23 @@ document.addEventListener("fullscreenchange", () => {
 });
 
 function logic() {
-    for (let entity of entitys) {
-        entity.physics();
-    }
-    for (let area of actionAreas) {
-        area.logic();
+    if (!edit) {
+        for (let entity of entitys) {
+            entity.physics();
+        }
+        for (let obj of logicObjs) {
+            obj.logic();
+        }
     }
     lastPhysics = performance.now();
 }
 
 function render() {
     scale = Math.floor(window.innerHeight/ppL); //pixels per Längeneinheit
-
-    mx = Math.floor(gameCanvas.width/2-scale*player.w/2);
-    my = Math.floor(gameCanvas.height/2-scale*player.h/2);
+    if (!edit) {
+        mx = Math.floor(gameCanvas.width/2-scale*player.w/2);
+        my = Math.floor(gameCanvas.height/2-scale*player.h/2);
+    }
     ctx.fillStyle = "rgb(36 0 120)";
     ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
 
@@ -447,8 +527,14 @@ window.onresize = function () {
 
 const konami = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"]
 let konami_idx = 0;
-let isKonami = false;
+let isKonami = true;
 let fly = false;
+let edit = false;
+let editingType = 0;
+const editingTypes = [Ground, Spike, Button];
+let editingObj;
+let editMouse = {moving:false, x:0, y:0, startX: 0, startY: 0, creating: false};
+let editedObjs = "";
 window.addEventListener("keydown", (event) => {
     if(event.code == konami[konami_idx]) {
         if (++konami_idx == konami.length) {
@@ -479,6 +565,15 @@ window.addEventListener("keydown", (event) => {
     if (event.code == "KeyF" && isKonami) {
         fly = !fly;
     }
+    if (event.code == "KeyE" && isKonami) {
+        edit = !edit;
+        if (!edit) {
+            navigator.clipboard.writeText(editedObjs)
+        }
+    }
+    if (event.code == "Space" && edit) {
+        editingType = (editingType + 1) % 3;
+    }
     keys[event.key] = true;
 });
 
@@ -489,5 +584,42 @@ window.addEventListener("keyup", (event) => {
 window.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
+    if (edit) {
+        if (editMouse.moving) {
+            mx = Math.floor(mx-(editMouse.x-mouseX));
+            my = Math.floor(my-(editMouse.y-mouseY));
+        }
+        if (editMouse.creating) {
+            editingObj.w = (e.clientX - mx)/scale + player.x - editMouse.startX;
+            editingObj.h = (e.clientY - my)/scale + player.y - editMouse.startY;
+        }
+    } 
+    editMouse.x = e.clientX;
+    editMouse.y = e.clientY;
+});
+window.addEventListener("mousedown", (e) => {
+    if (edit) {
+        if (e.button == 2) {
+            editMouse.x = e.clientX;
+            editMouse.y = e.clientY;
+            editMouse.moving = true;
+        } else if (e.button == 0) {
+            editMouse.startX = (e.clientX - mx)/scale + player.x;
+            editMouse.startY = (e.clientY - my)/scale + player.y;
+            editMouse.creating = true;
+            editingObj = new editingTypes[editingType](editMouse.startX, editMouse.startY, 0, 0);
+        }
+    }
+});
+window.addEventListener("mouseup", (e) => {
+    if (edit && e.button == 2) {
+        editMouse.moving = false;
+    } else if (edit && e.button == 0) {
+        editMouse.creating = false;
+        editedObjs += `new ${editingObj.constructor.name}(${editingObj.x}, ${editingObj.y}, ${editingObj.w}, ${editingObj.h});\n`
+    }
 });
 
+document.oncontextmenu = document.body.oncontextmenu = () => {
+    return !gaming;
+}
