@@ -527,7 +527,7 @@ window.onresize = function () {
 
 const konami = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"]
 let konami_idx = 0;
-let isKonami = true;
+let isKonami = false;
 let fly = false;
 let edit = false;
 let editingType = 0;
