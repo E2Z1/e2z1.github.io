@@ -16,7 +16,12 @@
 
 
 #addRound {
-    margin-top: 50px;
+    margin-top: 8px;
+}
+
+#addRound input {
+	font-size: 16px;
+	margin: 3px;
 }
 
 #cur {
