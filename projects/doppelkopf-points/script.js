@@ -46,26 +46,30 @@ function getAll() {
         .then((json) => {
             if (json.success) {
                 let table = document.getElementById("full").querySelector("table");
-                let html = `<tr><th>No.</th>`;
+                let html = "";
+                let header = `<tr><th>No.</th>`;
                 let users = {};
                 let points = []
                 for (let i = 0; i < json.users.length; i++) {
-                    html += `<th>${json.users[i].name}</th>`;
+                    header += `<th>${json.users[i].name}</th>`;
                     users[json.users[i].name] = i;
                     points.push(0);
                 }
-                html += "<th>Böcke</th></tr>";
+                header += "<th>Böcke</th></tr>";
+                let row;
                 for (let round of json.data) {
+                    row = ""
                     for (let value of Object.keys(round.points)) {
                         points[users[value]] += round.points[value];
                     }
-                    html += `<tr><td>${round.id}</td>`;
+                    row += `<tr><td>${round.id}</td>`;
                     for (let i = 0; i < json.users.length; i++) {
-                        html += `<td>${points[i]}</td>`;
+                        row += `<td>${points[i]}</td>`;
                     }
-                    html += `<td>${round.bock}</td></tr>`;
+                    row += `<td>${round.bock}</td></tr>`;
+                    html = row + html;
                 }
-                table.innerHTML = html;
+                table.innerHTML = header + html;
                 doStats(json.data, json.users);
             } else console.error(json.message);
         });
@@ -166,17 +170,16 @@ class BarChart {
     }
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.font = "14px Arial";
+        this.ctx.font = `${this.canvas.height/25}px Arial`;
         let maxVal = Math.max(...Object.values(this.data));
         if (maxVal == 0)
             maxVal = 1;     //to not divide by zero
         const minVal = Math.min(...Object.values(this.data), 0);   //wanted to make avg win/lose points in one plot -> negative values
                                                                 //and total points ofc
         const barWidth = (this.canvas.width - 20) / (Object.keys(this.data).length * 1.5);
-        const scaleFactor = (this.canvas.height * 0.9 - 20) / (maxVal - minVal);
+        const scaleFactor = (this.canvas.height * 0.9 - 4 - this.canvas.height/25) / (maxVal - minVal);
         const zeroPoint = this.canvas.height * 0.9 + minVal * scaleFactor;
 
-        
 
         for (let i = 0; i < Object.keys(this.data).length; i++) {
             const key = Object.keys(this.data)[i];
@@ -193,14 +196,14 @@ class BarChart {
                 valText = "" + Math.round(val*100) + "%";
             }
             if (val < 0) {
-                this.ctx.fillText(valText, x, zeroPoint - height + 16);
+                this.ctx.fillText(valText, x, zeroPoint - height + 2 + this.canvas.height/25);
             } else {
                 this.ctx.fillText(valText, x, zeroPoint - height - 4);
             }
             if (val < 0) {
                 this.ctx.fillText(key.slice(0,4), x, zeroPoint - 4);
             } else {
-                this.ctx.fillText(key.slice(0,4), x, zeroPoint + 16);
+                this.ctx.fillText(key.slice(0,4), x, zeroPoint + 2 + this.canvas.height/25);
             }
         }
     }

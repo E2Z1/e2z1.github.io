@@ -5,7 +5,7 @@ var konami_idx = 0;
 document.addEventListener('keydown', function(event) {
     if(event.code == konami[konami_idx]) {
         if (++konami_idx == konami.length) {
-            document.getElementById("projects").innerHTML += `          <div class="card" onclick="window.location='./platformer';">
+            document.getElementById("projects").innerHTML += `          <div class="card" onclick="window.location='./platformer';" tabindex="0" role="button">
             <p id="title_img" style="margin-top: 30%; text-align: center; font-size: 100px;">???</p>
             <div class="container">
               <h4><b>???</b></h4> 
@@ -19,3 +19,10 @@ document.addEventListener('keydown', function(event) {
         konami_idx = 0
     }
 });
+
+function handleKeyAsClick(event) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    event.target.click();
+  }
+}
