@@ -19,6 +19,9 @@ let mouseY = 0;
 let player;
 let logicInterval;
 const interpolation = true;
+const showFps = false;
+const isTouchscreen = 'ontouchstart' in document.documentElement;
+let buttons = [["a", [10, gameCanvas.height - 60]],["d", [70, gameCanvas.height - 60]],["w", [gameCanvas.width - 60, gameCanvas.height - 60]]]
 let gaming;
 
 let objects = [];
@@ -356,10 +359,10 @@ class BossBar {
     }
     render() {
         ctx.fillStyle = "rgb(200 200 200)";
-        ctx.fillRect(gameCanvas.width/4, 10, gameCanvas.width/2, 100);
+        ctx.fillRect(gameCanvas.width/4, 10, gameCanvas.width/2, min(100, gameCanvas.height/5));
 
         ctx.fillStyle = this.color;
-        ctx.fillRect(gameCanvas.width/4+5, 15, (gameCanvas.width/2-10)*(this.boss.hp / this.boss.maxHP), 90);
+        ctx.fillRect(gameCanvas.width/4+5, 15, (gameCanvas.width/2-10)*(this.boss.hp / this.boss.maxHP), min(100, gameCanvas.height/5)-10);
     }
 }
 
@@ -455,6 +458,9 @@ function start() {
     } else if (gameCanvas.msRequestFullscreen) {
         gameCanvas.msRequestFullscreen();
     }
+
+    gameCanvas.width = window.innerWidth;
+    gameCanvas.height = window.innerHeight;
     gaming = true;
     loadLevel(0);
     lastFrame = performance.now();
@@ -491,13 +497,23 @@ function render() {
     }
     ctx.fillStyle = "rgb(36 0 120)";
     ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    if (showFps) {
+        ctx.fillStyle = "rgb(255 255 255)";
+        ctx.font = "100px Arial";
+        ctx.fillText(fps.toString()+" FPS", 80,80);
+    }
 
-    ctx.fillStyle = "rgb(255 255 255)";
-    ctx.font = "100px Arial";
-    ctx.fillText(fps.toString()+" FPS", 80,80);
 
     for (let object of objects) {
         object.render(mx, my, scale, lastPhysics);
+    }
+
+    if (isTouchscreen) {
+        let buttons = [["a", [10, gameCanvas.height - 60]],["d", [70, gameCanvas.height - 60]],["w", [gameCanvas.width - 60, gameCanvas.height - 60]]]
+        ctx.fillStyle = "white";
+        for (let button of buttons) {
+            ctx.fillRect(button[1][0], button[1][1], 50, 50);
+        }
     }
 
     if (countedFrames++ >= 100) {
@@ -619,6 +635,35 @@ window.addEventListener("mouseup", (e) => {
         editedObjs += `new ${editingObj.constructor.name}(${editingObj.x}, ${editingObj.y}, ${editingObj.w}, ${editingObj.h});\n`
     }
 });
+
+
+
+window.addEventListener("touchstart", (e) => {
+    if (gaming) {
+        let buttons = [["a", [10, gameCanvas.height - 60]],["d", [70, gameCanvas.height - 60]],["w", [gameCanvas.width - 60, gameCanvas.height - 60]]]
+        for (let button of buttons) {
+            keys[button[0]] = false;
+            for (let touch of e.touches) {
+                if (button[1][0] < touch.clientX && touch.clientX < button[1][0]+50 && button[1][1] < touch.clientY && touch.clientY < button[1][1]+50) {
+                    keys[button[0]] = true;
+                }
+            }
+        }
+    }
+})
+window.addEventListener("touchend", (e) => {
+    if (gaming) {
+        let buttons = [["a", [10, gameCanvas.height - 60]],["d", [70, gameCanvas.height - 60]],["w", [gameCanvas.width - 60, gameCanvas.height - 60]]]
+        for (let button of buttons) {
+            keys[button[0]] = false;
+            for (let touch of e.touches) {
+                if (button[1][0] < touch.clientX && touch.clientX < button[1][0]+50 && button[1][1] < touch.clientY && touch.clientY < button[1][1]+50) {
+                    keys[button[0]] = true;
+                }
+            }
+        }
+    }
+})
 
 document.oncontextmenu = document.body.oncontextmenu = () => {
     return !gaming;

@@ -34,7 +34,7 @@
     overflow-x: scroll;
 }
 
-button {
+button, #downloadBtn {
     background-color: white;
     text-align: center;
     color: var(--c1);
@@ -109,4 +109,10 @@ canvas {
 .popUp input {
     background-color: var(--c1);
     color: white;
+}
+
+#downloadBtn {
+    font-size: 20px;
+    padding: 5px;
+    text-decoration: none;
 }

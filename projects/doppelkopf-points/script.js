@@ -45,6 +45,7 @@ function getAll() {
         .then((response) => response.json())
         .then((json) => {
             if (json.success) {
+                let csv = "No.";
                 let table = document.getElementById("full").querySelector("table");
                 let html = "";
                 let header = `<tr><th>No.</th>`;
@@ -52,10 +53,12 @@ function getAll() {
                 let points = []
                 for (let i = 0; i < json.users.length; i++) {
                     header += `<th>${json.users[i].name}</th>`;
+                    csv += `;${json.users[i].name}`;
                     users[json.users[i].name] = i;
                     points.push(0);
                 }
                 header += "<th>Böcke</th></tr>";
+                csv += ";Böcke;Einträger;Zeit\n";
                 let row;
                 for (let round of json.data) {
                     row = ""
@@ -63,13 +66,20 @@ function getAll() {
                         points[users[value]] += round.points[value];
                     }
                     row += `<tr><td>${round.id}</td>`;
+                    csv += `${round.id}`;
                     for (let i = 0; i < json.users.length; i++) {
                         row += `<td>${points[i]}</td>`;
+                        csv += `;${points[i]}`;
                     }
                     row += `<td>${round.bock}</td></tr>`;
+                    csv += `;${round.bock};${round.eintragender};${round.time}\n`;
                     html = row + html;
                 }
                 table.innerHTML = header + html;
+                const blob = new Blob([csv], { type: "text/csv" });
+                console.log(URL.createObjectURL(blob))
+                document.getElementById("downloadBtn").href = URL.createObjectURL(blob);
+                document.getElementById("downloadBtn").download = "doppelkopf.csv";
                 doStats(json.data, json.users);
             } else console.error(json.message);
         });
