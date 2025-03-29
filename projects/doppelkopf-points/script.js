@@ -307,7 +307,6 @@ class Graph {
             this.ctx.lineWidth = this.canvas.height/300;
 
             this.ctx.beginPath();
-            this.ctx.moveTo(0, zeroPointY);
             let tVal;
             for (let j = 0; j < Object.keys(val).length; j++) {
                 tVal = val[Object.keys(val)[j]];
@@ -347,7 +346,7 @@ function doStats(data, users) {
         totalPoints[user.name] = 0;
         noBockPoints[user.name] = 0;
         eintragender[user.name] = 0;
-        individualPointHistory[user.name] = [];
+        individualPointHistory[user.name] = [[0,0]];
     }
 
     let isBock = false;
@@ -367,10 +366,7 @@ function doStats(data, users) {
             participation[player] += 1;
             totalPoints[player] += round.points[player];
 
-            let oldVal = 0;
-            if (individualPointHistory[player].length > 0) {
-                oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
-            }
+            let oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
 
             individualPointHistory[player].push([round.id, oldVal + round.points[player]]);
             if (isBock) {
