@@ -330,6 +330,7 @@ function doStats(data, users) {
     let eintragender = {};
     let winPoints = {};
     let losePoints = {};
+    let avgPoints = {};
     let totalPoints = {};
     let noBockPoints = {};
     let individualPointHistory = {} //for graph
@@ -342,6 +343,7 @@ function doStats(data, users) {
         soliWins[user.name] = 0;
         winPoints[user.name] = 0;
         losePoints[user.name] = 0;
+        avgPoints[user.name] = 0;
         wins[user.name] = 0;
         totalPoints[user.name] = 0;
         noBockPoints[user.name] = 0;
@@ -380,6 +382,7 @@ function doStats(data, users) {
             } else if (round.points[player] < 0) {
                 losePoints[player] -= round.points[player];
             }
+            avgPoints[player] += round.points[player];
 
         }
 
@@ -424,6 +427,7 @@ function doStats(data, users) {
                 if (participation[user] - wins[user] > 0) { //technically inaccurate beacuse of round with 0 points but whatever
                     losePoints[user] /= participation[user] - wins[user];
                 }
+                avgPoints[user] /= participation[user];
                 if (soli[user] > 0) {
                     soliWins[user] /= soli[user];
                 }
