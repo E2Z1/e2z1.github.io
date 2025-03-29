@@ -446,7 +446,8 @@ function doStats(data, users) {
     }
     new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
     new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
-    new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage
+    new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage 
+    new BarChart("Average Win points", winPoints, document.getElementById("winP"), false);    //title, data, canvas, siPercentage
     new BarChart("Average Win points", winPoints, document.getElementById("winP"), false);    //title, data, canvas, siPercentage
     new BarChart("Average Lose points", losePoints, document.getElementById("loseP"), false);    //title, data, canvas, siPercentage
     new BarChart("Wins", wins, document.getElementById("wins"), true);    //title, data, canvas, siPercentage
