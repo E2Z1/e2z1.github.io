@@ -77,7 +77,6 @@ function getAll() {
                 }
                 table.innerHTML = header + html;
                 const blob = new Blob([csv], { type: "text/csv" });
-                console.log(URL.createObjectURL(blob))
                 document.getElementById("downloadBtn").href = URL.createObjectURL(blob);
                 document.getElementById("downloadBtn").download = "doppelkopf.csv";
                 doStats(json.data, json.users);
@@ -333,6 +332,7 @@ function doStats(data, users) {
     let losePoints = {};
     let totalPoints = {};
     let noBockPoints = {};
+    let pointSources = {};
     let individualPointHistory = {} //for graph
     let bocks = 0.0;
 
@@ -346,6 +346,10 @@ function doStats(data, users) {
         wins[user.name] = 0;
         totalPoints[user.name] = 0;
         noBockPoints[user.name] = 0;
+        pointSources[user.name] = {};
+		for (let sourceUser of users) {
+			pointSources[user.name][sourceUser.name] = 0;
+		}
         eintragender[user.name] = 0;
         individualPointHistory[user.name] = [];
     }
@@ -385,6 +389,17 @@ function doStats(data, users) {
                 losePoints[player] -= round.points[player];
             }
 
+			for (let sourcePlayer of Object.keys(round.points)) {
+				const src = round.points[sourcePlayer];
+				const dest = round.points[player];
+				if (-src == dest) {		//with how many people the points are shared
+					pointSources[player][sourcePlayer] += dest/2;	//normal
+				} else if (-src == dest*3) {
+					pointSources[player][sourcePlayer] += dest;	//against solo player
+				} else if (-src == dest/3) {
+					pointSources[player][sourcePlayer] += dest/3;		//solo player
+				}
+			}
         }
 
         //prob overly complicated but whatever
@@ -455,6 +470,37 @@ function doStats(data, users) {
     new BarChart("Soli Wins", soliWins, document.getElementById("soliWins"), true);    //title, data, canvas, siPercentage
     new BarChart("No Bocks", noBockPoints, document.getElementById("noBock"), false);    //title, data, canvas, siPercentage
     document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
+	//sources
+	for (let destPlayer of Object.entries(pointSources)) {
+		const srces = Object.entries(destPlayer[1]);
+		const gain = srces.filter(num => num[1] > 0);
+		const lose = srces.filter(num => num[1] < 0);
+		lose.sort((a, b) => a[1]-b[1]);
+		gain.sort((a, b) => b[1]-a[1]);
+		let gainTable = "";
+		for (let plPlayer of gain) {
+			gainTable += `<tr><td>${plPlayer[0]}</td><td>${Math.round(plPlayer[1]*10)/10}</td></tr>`;
+		}
+		let loseTable = "";
+		for (let plPlayer of lose) {
+			loseTable += `<tr><td>${plPlayer[0]}</td><td>${-Math.round(plPlayer[1]*10)/10}</td></tr>`;
+		}
+		document.getElementById("pointSources").innerHTML += `
+			<div>
+				<h4>${destPlayer[0]}</h4>
+				<div>
+					<div>
+						<h5>Points Gained</h5>
+						<table>${gainTable}</table>
+					</div>
+					<div>
+						<h5>Points Lost</h5>
+						<table>${loseTable}</table>
+					</div>
+				</div>
+			</div>
+		`;
+	}
 }
 
 if (document.getElementById("cur")) {

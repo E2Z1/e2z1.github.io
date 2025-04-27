@@ -116,3 +116,24 @@ canvas {
     padding: 5px;
     text-decoration: none;
 }
+
+#pointSources {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+#pointSources > div {
+	background-color: #fff;
+	border-radius: 5px;
+	margin: 20px;
+	padding: 15px;
+}
+#pointSources > div > div {
+	display: flex;
+	flex-direction: row;
+	gap: 30px;
+}
+
+#pointSources td, #pointSources h4, #pointSources h5 {
+	color: #000000;
+}
