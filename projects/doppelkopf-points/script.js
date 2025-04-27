@@ -306,7 +306,6 @@ class Graph {
             this.ctx.lineWidth = this.canvas.height/300;
 
             this.ctx.beginPath();
-            this.ctx.moveTo(0, zeroPointY);
             let tVal;
             for (let j = 0; j < Object.keys(val).length; j++) {
                 tVal = val[Object.keys(val)[j]];
@@ -330,6 +329,7 @@ function doStats(data, users) {
     let eintragender = {};
     let winPoints = {};
     let losePoints = {};
+    let avgPoints = {};
     let totalPoints = {};
     let noBockPoints = {};
     let pointSources = {};
@@ -343,6 +343,7 @@ function doStats(data, users) {
         soliWins[user.name] = 0;
         winPoints[user.name] = 0;
         losePoints[user.name] = 0;
+        avgPoints[user.name] = 0;
         wins[user.name] = 0;
         totalPoints[user.name] = 0;
         noBockPoints[user.name] = 0;
@@ -351,7 +352,7 @@ function doStats(data, users) {
 			pointSources[user.name][sourceUser.name] = 0;
 		}
         eintragender[user.name] = 0;
-        individualPointHistory[user.name] = [];
+        individualPointHistory[user.name] = [[0,0]];
     }
 
     let isBock = false;
@@ -371,10 +372,7 @@ function doStats(data, users) {
             participation[player] += 1;
             totalPoints[player] += round.points[player];
 
-            let oldVal = 0;
-            if (individualPointHistory[player].length > 0) {
-                oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
-            }
+            let oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
 
             individualPointHistory[player].push([round.id, oldVal + round.points[player]]);
             if (isBock) {
@@ -388,6 +386,7 @@ function doStats(data, users) {
             } else if (round.points[player] < 0) {
                 losePoints[player] -= round.points[player];
             }
+            avgPoints[player] += round.points[player];
 
 			for (let sourcePlayer of Object.keys(round.points)) {
 				const src = round.points[sourcePlayer];
@@ -443,6 +442,7 @@ function doStats(data, users) {
                 if (participation[user] - wins[user] > 0) { //technically inaccurate beacuse of round with 0 points but whatever
                     losePoints[user] /= participation[user] - wins[user];
                 }
+                avgPoints[user] /= participation[user];
                 if (soli[user] > 0) {
                     soliWins[user] /= soli[user];
                 }
@@ -461,7 +461,8 @@ function doStats(data, users) {
     }
     new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
     new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
-    new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage
+    new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage 
+    new BarChart("Average points", avgPoints, document.getElementById("avgP"), false);    //title, data, canvas, siPercentage
     new BarChart("Average Win points", winPoints, document.getElementById("winP"), false);    //title, data, canvas, siPercentage
     new BarChart("Average Lose points", losePoints, document.getElementById("loseP"), false);    //title, data, canvas, siPercentage
     new BarChart("Wins", wins, document.getElementById("wins"), true);    //title, data, canvas, siPercentage
