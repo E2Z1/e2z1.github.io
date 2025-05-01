@@ -541,9 +541,6 @@ function doStats(data, users) {
 	}
 }
 
-document.getElementById("fromTime").value = "";
-document.getElementById("toTime").value = "";
-
 if (document.getElementById("cur")) {
     getCurrent();
 }
