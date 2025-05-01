@@ -509,6 +509,7 @@ function doStats(data, users) {
     new BarChart("No Bocks", noBockPoints, document.getElementById("noBock"), false);    //title, data, canvas, siPercentage
     document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
 	//sources
+	document.getElementById("pointSources").innerHTML = "";
 	for (let destPlayer of Object.entries(pointSources)) {
 		const srces = Object.entries(destPlayer[1]);
 		const gain = srces.filter(num => num[1] > 0);
