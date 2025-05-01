@@ -38,9 +38,12 @@ button, #downloadBtn {
     background-color: white;
     text-align: center;
     color: var(--c1);
-    margin-top: 50px;
     cursor: pointer;
     border: none;
+}
+
+#addRoundBtn, #downloadBtn {
+	margin-top: 50px;
 }
 
 #full {
@@ -48,6 +51,7 @@ button, #downloadBtn {
     padding: 0;
     margin-top: 50px;
     width: 100%;
+	max-width: fit-content;
     max-height: calc(100vh - 270px);
     overflow-x: scroll;
     overflow-y: scroll;
@@ -61,7 +65,11 @@ button, #downloadBtn {
     border: 1px solid #ddd;
 }
 
-
+#dateSel {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 50px;
+}
 
 td, th {
     text-align: center;
@@ -75,6 +83,8 @@ th {
 }
 td {
     border-top: 2px solid white;
+	white-space: nowrap;
+
 }
 
 canvas {

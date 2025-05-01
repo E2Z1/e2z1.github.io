@@ -1,3 +1,5 @@
+let fullTable;
+
 function setAddr() {
     document.body.innerHTML += `
     
@@ -45,41 +47,8 @@ function getAll() {
         .then((response) => response.json())
         .then((json) => {
             if (json.success) {
-                let csv = "No.";
-                let table = document.getElementById("full").querySelector("table");
-                let html = "";
-                let header = `<tr><th>No.</th>`;
-                let users = {};
-                let points = []
-                for (let i = 0; i < json.users.length; i++) {
-                    header += `<th>${json.users[i].name}</th>`;
-                    csv += `;${json.users[i].name}`;
-                    users[json.users[i].name] = i;
-                    points.push(0);
-                }
-                header += "<th>Böcke</th></tr>";
-                csv += ";Böcke;Einträger;Zeit\n";
-                let row;
-                for (let round of json.data) {
-                    row = ""
-                    for (let value of Object.keys(round.points)) {
-                        points[users[value]] += round.points[value];
-                    }
-                    row += `<tr><td>${round.id}</td>`;
-                    csv += `${round.id}`;
-                    for (let i = 0; i < json.users.length; i++) {
-                        row += `<td>${points[i]}</td>`;
-                        csv += `;${points[i]}`;
-                    }
-                    row += `<td>${round.bock}</td></tr>`;
-                    csv += `;${round.bock};${round.eintragender};${round.time}\n`;
-                    html = row + html;
-                }
-                table.innerHTML = header + html;
-                const blob = new Blob([csv], { type: "text/csv" });
-                document.getElementById("downloadBtn").href = URL.createObjectURL(blob);
-                document.getElementById("downloadBtn").download = "doppelkopf.csv";
-                doStats(json.data, json.users);
+				fullTable = json;
+                showTable();
             } else console.error(json.message);
         });
 }
@@ -157,7 +126,7 @@ function getAddUsers() {
                 <input type="checkbox" id="bock">
                 <br>
 
-                <button onclick="addRound()">Add Round</button>
+                <button id="addRoundBtn" onclick="addRound()">Add Round</button>
 
                 `;
                 const lastValues = localStorage.getItem("lastPlayers") ? JSON.parse(localStorage.getItem("lastPlayers")) : [" ", " ", " ", " ", " "];
@@ -191,7 +160,7 @@ class BarChart {
 
 
         for (let i = 0; i < Object.keys(this.data).length; i++) {
-            const key = Object.keys(this.data)[i];
+            const key = Object.keys(this.data).sort()[i];
             const val = this.data[key];
             const x = 20 + i * (barWidth) + barWidth * 0.25;
             const height = val * scaleFactor;
@@ -298,7 +267,7 @@ class Graph {
         
 
         for (let i = 0; i < Object.keys(this.data).length; i++) {
-            const key = Object.keys(this.data)[i];
+            const key = Object.keys(this.data).sort()[i];
             const val = this.data[key];
 
             this.ctx.fillStyle = colors[i];
@@ -318,6 +287,72 @@ class Graph {
 
         }
     }
+}
+
+
+function getLastWeeksDate() {
+	let date = new Date();
+	date.setDate(date.getDate()-6);	//with today 1 week
+	return date;
+}
+function getLastMonthsDate() {
+	let date = new Date();
+	date.setMonth(date.getMonth()-1);
+	return date;
+}
+
+function getLocalDateFromInput(inputValue) {
+	const [year, month, day] = inputValue.split('-').map(Number);
+	return new Date(year, month - 1, day); // month is 0-based
+}  
+
+function showTable() {
+	const from = document.getElementById("fromTime").value ? getLocalDateFromInput(document.getElementById("fromTime").value) : null;
+	const to = document.getElementById("toTime").value ? getLocalDateFromInput(document.getElementById("toTime").value) : null;
+	if (to)
+		to.setDate(to.getDate()+1);
+	const data = fullTable.data.filter((el) => {
+		const d = new Date(el.time);
+		return (to === null || d < to) && (from === null || d > from);
+	});
+
+	let csv = "No.";
+	let table = document.getElementById("full").querySelector("table");
+	let html = "";
+	let header = `<tr><th>No.</th>`;
+	let users = {};
+	let points = []
+	for (let i = 0; i < fullTable.users.length; i++) {
+		header += `<th>${fullTable.users.sort((a,b) => a.name.localeCompare(b.name))[i].name}</th>`;
+		csv += `;${fullTable.users.sort((a,b) => a.name.localeCompare(b.name))[i].name}`;
+		users[fullTable.users.sort((a,b) => a.name.localeCompare(b.name))[i].name] = i;
+		points.push(0);
+	}
+	header += "<th>Böcke</th><th>Time</th></tr>";
+	csv += ";Böcke;Einträger;Zeit\n";
+	let row;
+	let i = 0;
+	for (let round of data) {
+		i++;
+		row = ""
+		for (let value of Object.keys(round.points)) {
+			points[users[value]] += round.points[value];
+		}
+		row += `<tr><td>${i}</td>`;
+		csv += `${i}`;
+		for (let i = 0; i < fullTable.users.length; i++) {
+			row += `<td>${points[i]}</td>`;
+			csv += `;${points[i]}`;
+		}
+		row += `<td>${round.bock}</td><td>${new Date(round.time).toLocaleString()}</td></tr>`;
+		csv += `;${round.bock};${round.eintragender};${round.time}\n`;
+		html = row + html;
+	}
+	table.innerHTML = header + html;
+	const blob = new Blob([csv], { type: "text/csv" });
+	document.getElementById("downloadBtn").href = URL.createObjectURL(blob);
+	document.getElementById("downloadBtn").download = "doppelkopf.csv";
+	doStats(data, fullTable.users);
 }
 
 function doStats(data, users) {
@@ -356,7 +391,9 @@ function doStats(data, users) {
     }
 
     let isBock = false;
+	let i = 0;
     for (let round of data) {
+		i++;
         if (Object.keys(round.points).length == 0)
             continue;
 
@@ -374,7 +411,7 @@ function doStats(data, users) {
 
             let oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
 
-            individualPointHistory[player].push([round.id, oldVal + round.points[player]]);
+            individualPointHistory[player].push([i, oldVal + round.points[player]]);
             if (isBock) {
                 noBockPoints[player] += round.points[player]/2;
             } else {
@@ -504,6 +541,9 @@ function doStats(data, users) {
 	}
 }
 
+document.getElementById("fromTime").value = "";
+document.getElementById("toTime").value = "";
+
 if (document.getElementById("cur")) {
     getCurrent();
 }
@@ -514,3 +554,7 @@ if (document.getElementById("full")) {
 if (document.getElementById("addRound")) {
     getAddUsers();
 }
+
+document.getElementById("fromTime").onchange = showTable;
+
+document.getElementById("toTime").onchange = showTable;

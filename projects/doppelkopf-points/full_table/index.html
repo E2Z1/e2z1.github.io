@@ -26,6 +26,21 @@
     <a href="#">Full Table</a>
     <a href="../add_round/">Add Round</a>
   </div>
+  <div id="dateSel">
+	<div>
+		<h4>From</h4>
+		<input type="date" name="from" id="fromTime">
+		<button onclick="document.getElementById('fromTime').value = new Date().toISOString().split('T')[0]; showTable()">Today</button>
+		<button onclick="document.getElementById('fromTime').value = getLastWeeksDate().toISOString().split('T')[0]; showTable()">Last Week</button>
+		<button onclick="document.getElementById('fromTime').value = getLastMonthsDate().toISOString().split('T')[0]; showTable()">Last Month</button>
+		<button onclick="document.getElementById('fromTime').value = ''; showTable()">Clear</button>
+	</div>
+	<div>
+		<h4>To</h4>
+		<input type="date" name="to" id="toTime">
+		<button onclick="document.getElementById('toTime').value = ''; showTable()">Clear</button>
+	</div>
+  </div>
   <div id="full">
     <table>
     </table>
