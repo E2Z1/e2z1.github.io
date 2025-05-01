@@ -1,4 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Asar&display=swap');
+@font-face {
+	font-family: 'Asar';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/Asar-Regular.woff2) format('woff2');
+}
 
 @property --c1 {
   syntax: '<color>';

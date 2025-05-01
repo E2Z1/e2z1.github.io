@@ -42,6 +42,7 @@ button, #downloadBtn {
 	-webkit-opacity: 1;
     cursor: pointer;
     border: none;
+	padding: 4px;
 }
 
 #addRoundBtn, #downloadBtn {

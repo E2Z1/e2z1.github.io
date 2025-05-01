@@ -547,11 +547,11 @@ if (document.getElementById("cur")) {
 
 if (document.getElementById("full")) {
     getAll();
+
+	document.getElementById("fromTime").onchange = showTable;
+
+	document.getElementById("toTime").onchange = showTable;
 }
 if (document.getElementById("addRound")) {
     getAddUsers();
 }
-
-document.getElementById("fromTime").onchange = showTable;
-
-document.getElementById("toTime").onchange = showTable;
