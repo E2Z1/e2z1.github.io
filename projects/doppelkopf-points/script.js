@@ -61,7 +61,7 @@ function addRound() {
     const numbers = personFields.querySelectorAll(".number");
     for (let i = 0; i < 4; i++) {
         let number = numbers[i].value;
-        if (number != Number(number) || Number(number) == 0)
+        if (number != Number(number))
             return;
         data[persons[i].value] = Number(number);
         valuesForNext.push(persons[i].value);
