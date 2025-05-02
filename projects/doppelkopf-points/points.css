@@ -11,6 +11,8 @@
     background-color: white;
     text-align: center;
     color: var(--c1);
+    	-webkit-text-fill-color: #232369; 
+	-webkit-opacity: 1;
     text-decoration: none;
 }
 
