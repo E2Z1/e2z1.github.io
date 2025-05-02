@@ -471,7 +471,7 @@ function doStats(data, users) {
 
     }
     for (let user of userNames) {
-        if (data.length-1 > 1) {
+        if (data.length > 0) {
             if (participation[user] > 0) {
                 if (wins[user] > 0) {
                     winPoints[user] /= wins[user];
@@ -487,14 +487,14 @@ function doStats(data, users) {
                 soli[user] /= participation[user];
                 
             }
-            participation[user] /= data.length-1;
-            eintragender[user] /= data.length-1;
+            participation[user] /= data.length;
+            eintragender[user] /= data.length;
             
         }
 
     }
-    if (data.length-1 > 1) {
-        bocks /= data.length-1;
+    if (data.length > 0) {
+        bocks /= data.length;
     }
     new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
     new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
