@@ -28,11 +28,11 @@ function getCurrent() {
             if (json.success) {
                 let table = document.getElementById("cur").querySelector("table");
                 let html = `<tr><th>No.</th>`;
-                for (let user of json.users) {
+                for (let user of json.users.sort()) {
                     html += `<th>${user.name}</th>`;
                 }
                 html += `<th>Böcke</th></tr><tr><td>${json.data.id}</td>`;
-                for (let user of json.users) {
+                for (let user of json.users.sort()) {
                     html += `<td>${user.points}</td>`;
                 }
                 html += `<td>${json.data.bock}</td></tr>`;
@@ -101,7 +101,7 @@ function getAddUsers() {
             if (json.success) {
                 const personFields = document.getElementById("personFields");
                 let persons = [];
-                for (let user of json.users) {
+                for (let user of json.users.sort()) {
                     persons.push(user.name);
                 }
                 for (let i = 0; i < 4; i++) {
