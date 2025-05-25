@@ -1,32 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doppelkopf Tabelle</title>
-    <link rel="stylesheet" href="/global.css">
-    <link rel="stylesheet" href="../points.css">
-    <link rel="icon" href="/imgs/logo.svg">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Doppelkopf Tabelle</title>
+	<link rel="stylesheet" href="/global.css">
+	<link rel="stylesheet" href="../points.css">
+	<link rel="icon" href="/imgs/logo.svg">
 </head>
 <body>
-  <nav>
-    <div id="title">
-        <h1>E2Z1</h1>
-        <h2 id="loc">Tabelle</h2>
-    </div>
-    <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/projects/">Projects</a></li>
-        <li><a href="https://github.com/E2Z1">Github</a></li>
-    </ul>
-  </nav>
-  <div id="sub_nav">
-    <a href="..">Current</a>
-    <a href="#">Full Table</a>
-    <a href="../add_round/">Add Round</a>
-  </div>
-  <div id="dateSel">
+	<nav>
+	<div id="title">
+		<h1>E2Z1</h1>
+		<h2 id="loc">Tabelle</h2>
+	</div>
+	<ul>
+		<li><a href="/">Home</a></li>
+		<li><a href="/projects/">Projects</a></li>
+		<li><a href="https://github.com/E2Z1">Github</a></li>
+	</ul>
+	</nav>
+	<div id="sub_nav">
+		<a href="..">Current</a>
+		<a href="#">Full Table</a>
+		<a href="../add_round/">Add Round</a>
+	</div>
+	<a onclick="toggleContents()" id="ham-menu"><img src="/imgs/hamburger.svg"></a>
+	<div id="contents">
+		<ul>
+			<li><a href="#full">Table</a></li>
+			<li><a href="#totalH">Total Points</a></li>
+			<li><a href="#winH">Win Rate</a></li>
+			<li><a href="#partH">Participation</a></li>
+			<li><a href="#maxH">Max Points</a></li>
+			<li><a href="#minH">Min Points</a></li>
+			<li><a href="#soloH">Soli</a></li>
+			<li><a href="#soloWinH">Soli Win Rate</a></li>
+			<li><a href="#bockH">Böckis</a></li>
+			<li><a href="#avgH">Average Points</a></li>
+			<li><a href="#avgWinH">Average Win Points</a></li>
+			<li><a href="#avgLoseH">Average Lose Points</a></li>
+			<li><a href="#eintragH">Eintragende</a></li>
+			<li><a href="#sourceH">Source of Points</a></li>
+			<li>Alternative Ratings</li>
+			<li><a href="#woH">Without Böcks</a></li>
+			<li><a href="#simpH">SimP</a></li>
+		</ul>
+	</div>
+	<div id="dateSel">
 	<div>
 		<h4>From</h4>
 		<input type="date" name="from" id="fromTime">
@@ -40,44 +62,50 @@
 		<input type="date" name="to" id="toTime">
 		<button onclick="document.getElementById('toTime').value = ''; showTable()">Clear</button>
 	</div>
-  </div>
-  <div id="full">
-    <table>
-    </table>
-  </div>
-  <h1>Statistics</h1>
+	</div>
+	<div id="full">
+	<table>
+	</table>
+	</div>
+	<h1>Statistics</h1>
 
-  <h3>Total Points</h3>
-  <canvas height="600px" width="900px" id="totalPoints"></canvas>
-  <canvas height="600px" width="900px" id="totalPointsGraph"></canvas>
+	<h3 id="totalH">Total Points</h3>
+	<canvas height="600px" width="900px" id="totalPoints"></canvas>
+	<canvas height="600px" width="900px" id="totalPointsGraph"></canvas>
 
-  <h3>Win Rate</h3>
-  <canvas height="600px" width="900px" id="wins"></canvas>
-  <h3>Participation</h3>
-  <canvas height="600px" width="900px" id="participation"></canvas>
-  <h3>Soli</h3>
-  <canvas height="600px" width="900px" id="soli"></canvas>
-  <h3>Soli Win Rate</h3>
-  <canvas height="600px" width="900px" id="soliWins"></canvas>
-  <h3>Böckis</h3>
-  <h5 id="num_bocks"></h5>
-  <h3>Average Points</h3>
-    <canvas height="600px" width="900px" id="avgP"></canvas>
-  <h3>Average Win Points</h3>
-  <canvas height="600px" width="900px" id="winP"></canvas>
-  <h3>Average Lose Points</h3>
-  <canvas height="600px" width="900px" id="loseP"></canvas>
-  <h3>Eintragende</h3>
-  <canvas height="600px" width="900px" id="eintragender"></canvas>
-  <h3>Source of Points</h3>
-  <div id="pointSources"></div>
+	<h3 id="winH">Win Rate</h3>
+	<canvas height="600px" width="900px" id="wins"></canvas>
+	<h3 id="partH">Participation</h3>
+	<canvas height="600px" width="900px" id="participation"></canvas>
+	<h3 id="maxH">Max Points</h3>
+	<canvas height="600px" width="900px" id="maxPoints"></canvas>
+	<h3 id="minH">Min Points</h3>
+	<canvas height="600px" width="900px" id="minPoints"></canvas>
+	<h3 id="soloH">Soli</h3>
+	<canvas height="600px" width="900px" id="soli"></canvas>
+	<h3 id="soloWinH">Soli Win Rate</h3>
+	<canvas height="600px" width="900px" id="soliWins"></canvas>
+	<h3 id="bockH">Böckis</h3>
+	<h5 id="num_bocks"></h5>
+	<h3 id="avgH">Average Points</h3>
+	<canvas height="600px" width="900px" id="avgP"></canvas>
+	<h3 id="avgWinH">Average Win Points</h3>
+	<canvas height="600px" width="900px" id="winP"></canvas>
+	<h3 id="avgLoseH">Average Lose Points</h3>
+	<canvas height="600px" width="900px" id="loseP"></canvas>
+	<h3 id="eintragH">Eintragende</h3>
+	<canvas height="600px" width="900px" id="eintragender"></canvas>
+	<h3 id="sourceH">Source of Points</h3>
+	<div id="pointSources"></div>
 
-  <h2>Alternative Ratings</h2>    
-  <h3>Without Böcks</h3>
-  <canvas height="600px" width="900px" id="noBock"></canvas>
+	<h2>Alternative Ratings</h2>    
+	<h3 id="woH">Without Böcks</h3>
+	<canvas height="600px" width="900px" id="noBock"></canvas>
+	<h3 id="simpH">SimP</h3>
+	<canvas height="600px" width="900px" id="simP"></canvas>
 
-  <h1>Download</h1>
-  <a id="downloadBtn">Download as CSV</a>
+	<h1>Download</h1>
+	<a id="downloadBtn">Download as CSV</a>
 
 <script src="../script.js"></script>
 </body>

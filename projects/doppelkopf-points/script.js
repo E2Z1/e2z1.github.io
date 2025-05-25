@@ -28,11 +28,12 @@ function getCurrent() {
             if (json.success) {
                 let table = document.getElementById("cur").querySelector("table");
                 let html = `<tr><th>No.</th>`;
-                for (let user of json.users.sort()) {
+				json.users.sort((a,b) => a.name.localeCompare(b.name))
+                for (let user of json.users) {
                     html += `<th>${user.name}</th>`;
                 }
                 html += `<th>Böcke</th></tr><tr><td>${json.data.id}</td>`;
-                for (let user of json.users.sort()) {
+                for (let user of json.users) {
                     html += `<td>${user.points}</td>`;
                 }
                 html += `<td>${json.data.bock}</td></tr>`;
@@ -101,7 +102,8 @@ function getAddUsers() {
             if (json.success) {
                 const personFields = document.getElementById("personFields");
                 let persons = [];
-                for (let user of json.users.sort()) {
+				json.users.sort((a,b) => a.name.localeCompare(b.name))
+                for (let user of json.users) {
                     persons.push(user.name);
                 }
                 for (let i = 0; i < 4; i++) {
@@ -152,11 +154,11 @@ class BarChart {
         let maxVal = Math.max(...Object.values(this.data));
         if (maxVal == 0)
             maxVal = 1;     //to not divide by zero
-        const minVal = Math.min(...Object.values(this.data), 0);   //wanted to make avg win/lose points in one plot -> negative values
-                                                                //and total points ofc
+        const minVal = Math.min(...Object.values(this.data), 0);	//wanted to make avg win/lose points in one plot -> negative values
+                                                                	//and total points ofc
         const barWidth = (this.canvas.width - 20) / (Object.keys(this.data).length * 1.5);
         const scaleFactor = (this.canvas.height * 0.9 - 4 - this.canvas.height/25) / (maxVal - minVal);
-        const zeroPoint = this.canvas.height * 0.9 + minVal * scaleFactor;
+        const zeroPoint = Math.max(25,this.canvas.height * 0.9 + minVal * scaleFactor);
 
 
         for (let i = 0; i < Object.keys(this.data).length; i++) {
@@ -366,8 +368,11 @@ function doStats(data, users) {
     let losePoints = {};
     let avgPoints = {};
     let totalPoints = {};
+    let minPoints = {};
+    let maxPoints = {};
     let noBockPoints = {};
     let pointSources = {};
+    let simP = {};
     let individualPointHistory = {} //for graph
     let bocks = 0.0;
 
@@ -381,11 +386,14 @@ function doStats(data, users) {
         avgPoints[user.name] = 0;
         wins[user.name] = 0;
         totalPoints[user.name] = 0;
+        minPoints[user.name] = 0;
+        maxPoints[user.name] = 0;
         noBockPoints[user.name] = 0;
         pointSources[user.name] = {};
 		for (let sourceUser of users) {
 			pointSources[user.name][sourceUser.name] = 0;
 		}
+        simP[user.name] = 0;
         eintragender[user.name] = 0;
         individualPointHistory[user.name] = [[0,0]];
     }
@@ -405,9 +413,14 @@ function doStats(data, users) {
         if (Number(round.bock) > 0) {
             bocks += 1.0;
         }
+		for (let player of userNames.filter(item => !Object.keys(round.points).includes(item))) {
+			individualPointHistory[player].push([i, individualPointHistory[player][individualPointHistory[player].length-1][1]]);
+		}
         for (let player of Object.keys(round.points)) {
             participation[player] += 1;
             totalPoints[player] += round.points[player];
+			maxPoints[player] = Math.max(maxPoints[player], totalPoints[player]);
+			minPoints[player] = Math.min(minPoints[player], totalPoints[player]);
 
             let oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
 
@@ -493,12 +506,31 @@ function doStats(data, users) {
         }
 
     }
+	for (let criteria of [wins, totalPoints, maxPoints, minPoints, participation]) {
+		let sorted = Object.entries(criteria);
+		sorted.sort((a, b) => a[1] - b[1]);
+		let points = 0;
+		let prevCritPoint;
+		let numSameRank = 0;
+		for (let i of sorted) {
+			if (i[1] == prevCritPoint) {
+				numSameRank++;
+			} else {
+				points += 1 + numSameRank;
+				numSameRank = 0;
+				prevCritPoint = i[1];
+			}
+			simP[i[0]] += points;
+		}
+	}
     if (data.length > 0) {
         bocks /= data.length;
     }
     new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
     new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
     new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage 
+    new BarChart("Max Points", maxPoints, document.getElementById("maxPoints"), false);    //title, data, canvas, siPercentage 
+    new BarChart("Min Points", minPoints, document.getElementById("minPoints"), false);    //title, data, canvas, siPercentage 
     new BarChart("Average points", avgPoints, document.getElementById("avgP"), false);    //title, data, canvas, siPercentage
     new BarChart("Average Win points", winPoints, document.getElementById("winP"), false);    //title, data, canvas, siPercentage
     new BarChart("Average Lose points", losePoints, document.getElementById("loseP"), false);    //title, data, canvas, siPercentage
@@ -507,6 +539,7 @@ function doStats(data, users) {
     new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
     new BarChart("Soli Wins", soliWins, document.getElementById("soliWins"), true);    //title, data, canvas, siPercentage
     new BarChart("No Bocks", noBockPoints, document.getElementById("noBock"), false);    //title, data, canvas, siPercentage
+    new BarChart("SimP", simP, document.getElementById("simP"), false);    //title, data, canvas, siPercentage
     document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
 	//sources
 	document.getElementById("pointSources").innerHTML = "";
@@ -539,6 +572,14 @@ function doStats(data, users) {
 				</div>
 			</div>
 		`;
+	}
+}
+
+function toggleContents() {
+	if (document.getElementById("contents").style.display == "block") {
+		document.getElementById("contents").style.display = "none";
+	} else {
+		document.getElementById("contents").style.display = "block";
 	}
 }
 

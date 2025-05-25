@@ -152,3 +152,47 @@ canvas {
 #pointSources td, #pointSources h4, #pointSources h5 {
 	color: #000000;
 }
+
+#ham-menu {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	cursor: pointer;
+	z-index: 10;
+	background-color: #232369;
+	border-radius: 4px;
+}
+
+#ham-menu img {
+	height: 40px;
+	display: block;
+}
+
+#contents {
+	z-index: 10;
+	position: fixed;
+	bottom: 80px;
+	right: 20px;
+	background-color: white;
+	padding: 20px;
+	border-radius: 4px;
+	max-height: calc(100vh - 140px);
+	overflow-y: scroll;
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+	display: none;
+}
+
+#contents ul {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+#contents a {
+	text-decoration: none;
+	color: #232369;
+}
+
+#contents li {
+	color: black;
+}
