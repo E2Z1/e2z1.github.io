@@ -367,6 +367,10 @@ function doStats(data, users) {
     let winPoints = {};
     let losePoints = {};
     let avgPoints = {};
+    let maxWinStreak = {};
+    let maxLoseStreak = {};
+    let loseStreak = {};
+    let winStreak = {};
     let totalPoints = {};
     let minPoints = {};
     let maxPoints = {};
@@ -384,6 +388,10 @@ function doStats(data, users) {
         winPoints[user.name] = 0;
         losePoints[user.name] = 0;
         avgPoints[user.name] = 0;
+        maxWinStreak[user.name] = 0;
+        maxLoseStreak[user.name] = 0;
+        winStreak[user.name] = 0;
+        loseStreak[user.name] = 0;
         wins[user.name] = 0;
         totalPoints[user.name] = 0;
         minPoints[user.name] = 0;
@@ -433,8 +441,17 @@ function doStats(data, users) {
             if (round.points[player] > 0) {
                 wins[player] += 1;
                 winPoints[player] += round.points[player];
+                winStreak[player]++;
+                maxWinStreak[player] = Math.max(maxWinStreak[player], winStreak[player]);
+                loseStreak[player] = 0;
             } else if (round.points[player] < 0) {
                 losePoints[player] -= round.points[player];
+                winStreak[player] = 0;
+                loseStreak[player]++;
+                maxLoseStreak = Math.max(maxLoseStreak[player], loseStreak[player]);
+            } else {
+                winStreak[player] = 0;
+                loseStreak[player] = 0;
             }
             avgPoints[player] += round.points[player];
 
@@ -534,6 +551,8 @@ function doStats(data, users) {
     new BarChart("Average points", avgPoints, document.getElementById("avgP"), false);    //title, data, canvas, siPercentage
     new BarChart("Average Win points", winPoints, document.getElementById("winP"), false);    //title, data, canvas, siPercentage
     new BarChart("Average Lose points", losePoints, document.getElementById("loseP"), false);    //title, data, canvas, siPercentage
+    new BarChart("Max Losing Streak", maxLoseStreak, document.getElementById("loseStreak"), false);    //title, data, canvas, siPercentage
+    new BarChart("Max Winning Streak", maxWinStreak, document.getElementById("winStreak"), false);    //title, data, canvas, siPercentage
     new BarChart("Wins", wins, document.getElementById("wins"), true);    //title, data, canvas, siPercentage
     new BarChart("Eintragender", eintragender, document.getElementById("eintragender"), true);    //title, data, canvas, siPercentage
     new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
