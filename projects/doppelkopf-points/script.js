@@ -448,7 +448,7 @@ function doStats(data, users) {
                 losePoints[player] -= round.points[player];
                 winStreak[player] = 0;
                 loseStreak[player]++;
-                maxLoseStreak = Math.max(maxLoseStreak[player], loseStreak[player]);
+                maxLoseStreak[player] = Math.max(maxLoseStreak[player], loseStreak[player]);
             } else {
                 winStreak[player] = 0;
                 loseStreak[player] = 0;
@@ -543,6 +543,7 @@ function doStats(data, users) {
     if (data.length > 0) {
         bocks /= data.length;
     }
+
     new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
     new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
     new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage 
