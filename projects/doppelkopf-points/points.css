@@ -97,6 +97,11 @@ canvas {
     overflow-x: scroll;
     width: 450px;
     height: auto;
+	user-select: none;
+}
+
+a {
+	color: #f1f1f1;
 }
 
 

@@ -25,6 +25,7 @@ function getCurrent() {
     })
         .then((response) => response.json())
         .then((json) => {
+			console.log(json)
             if (json.success) {
                 let table = document.getElementById("cur").querySelector("table");
                 let html = `<tr><th>No.</th>`;
@@ -146,6 +147,8 @@ class BarChart {
         this.ctx = canvas.getContext("2d");
         this.canvas = canvas;
         this.isPercentage = isPercentage;
+				console.log(title, data)
+
         this.draw();
     }
     draw() {
@@ -218,7 +221,11 @@ class Graph {
         this.draw();
         this.canvas.onclick = event => {
             if (event.detail == 2) {
-                this.canvas.requestFullscreen();
+				if (document.fullscreenElement) {
+					document.exitFullscreen();
+				} else {
+					this.canvas.requestFullscreen();
+				}
             }
         }
         let self = this;
@@ -375,9 +382,14 @@ function doStats(data, users) {
     let minPoints = {};
     let maxPoints = {};
     let noBockPoints = {};
+    let eloPoints = {};
     let pointSources = {};
     let simP = {};
+    let domP = {};
     let individualPointHistory = {} //for graph
+    let individualPointHistory_nobock = {} //for graph
+    let individualPointHistory_elo = {} //for graph
+    let individualPointHistory_domp = {} //for graph
     let bocks = 0.0;
 
     for (let user of users) {
@@ -397,19 +409,24 @@ function doStats(data, users) {
         minPoints[user.name] = 0;
         maxPoints[user.name] = 0;
         noBockPoints[user.name] = 0;
+        eloPoints[user.name] = 1500;
         pointSources[user.name] = {};
 		for (let sourceUser of users) {
 			pointSources[user.name][sourceUser.name] = 0;
 		}
         simP[user.name] = 0;
+        domP[user.name] = 0;
         eintragender[user.name] = 0;
         individualPointHistory[user.name] = [[0,0]];
+        individualPointHistory_nobock[user.name] = [[0,0]];
+        individualPointHistory_elo[user.name] = [[0,0]];
+        individualPointHistory_domp[user.name] = [[0,0]];
     }
 
     let isBock = false;
-	let i = 0;
+	let rnd = 0;
     for (let round of data) {
-		i++;
+		rnd++;
         if (Object.keys(round.points).length == 0)
             continue;
 
@@ -422,22 +439,72 @@ function doStats(data, users) {
             bocks += 1.0;
         }
 		for (let player of userNames.filter(item => !Object.keys(round.points).includes(item))) {
-			individualPointHistory[player].push([i, individualPointHistory[player][individualPointHistory[player].length-1][1]]);
+			individualPointHistory[player].push([rnd, individualPointHistory[player][individualPointHistory[player].length-1][1]]);
+			individualPointHistory_nobock[player].push([rnd, individualPointHistory_nobock[player][individualPointHistory_nobock[player].length-1][1]]);
+			individualPointHistory_elo[player].push([rnd, individualPointHistory_elo[player][individualPointHistory_elo[player].length-1][1]]);
+			individualPointHistory_domp[player].push([rnd, individualPointHistory_domp[player][individualPointHistory_domp[player].length-1][1]]);
 		}
-        for (let player of Object.keys(round.points)) {
+        for (let i = 0; i < Object.keys(round.points).length; i++) {
+			let player = Object.keys(round.points)[i];
+			let nb;
+			if (isBock) {
+                nb = round.points[player]/2;
+            } else {
+                nb = round.points[player];
+            }
             participation[player] += 1;
             totalPoints[player] += round.points[player];
 			maxPoints[player] = Math.max(maxPoints[player], totalPoints[player]);
 			minPoints[player] = Math.min(minPoints[player], totalPoints[player]);
 
-            let oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
+			let eloChange = 0;
 
-            individualPointHistory[player].push([i, oldVal + round.points[player]]);
-            if (isBock) {
-                noBockPoints[player] += round.points[player]/2;
-            } else {
-                noBockPoints[player] += round.points[player];
-            }
+			for (let j = 0; j < Object.keys(round.points).length; j++) {
+				let p2 = Object.keys(round.points)[j];
+				let nb2;
+				if (isBock) {
+					nb2 = round.points[p2]/2;
+				} else {
+					nb2 = round.points[p2];
+				}
+				const expect = 1 / (1 + Math.pow(10, (nb2 - nb) / 400));
+
+				eloChange += Math.round(nb - expect);
+			}
+
+			eloPoints[player] += eloChange;
+
+            let oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
+            individualPointHistory[player].push([rnd, oldVal + round.points[player]]);
+
+			oldVal = individualPointHistory_nobock[player][individualPointHistory_nobock[player].length-1][1];
+			individualPointHistory_nobock[player].push([rnd, oldVal + nb]);
+
+			oldVal = individualPointHistory_elo[player][individualPointHistory_elo[player].length-1][1];
+			individualPointHistory_elo[player].push([rnd, oldVal + eloChange]);
+
+			noBockPoints[player] += nb;
+
+			//domP
+			let sumP = 0;
+			let cntP = 0;
+			let sumN = 0;
+			let cntN = 0;
+			for (let name in round.points) {
+				if (round.points[name] > 0) {
+					sumP += domP[name];
+					cntP++;
+				} else {
+					sumN += domP[name];
+					cntN++;
+				}
+			}
+			const domPCha = cntP == 0 ? 0 : (1000-(sumP/cntP))/(1000-(sumN/cntN)) * nb;
+			oldVal = individualPointHistory_domp[player][individualPointHistory_domp[player].length-1][1];
+			individualPointHistory_domp[player].push([rnd, oldVal + domPCha]);
+			domP[player] += domPCha;
+			
+
             if (round.points[player] > 0) {
                 wins[player] += 1;
                 winPoints[player] += round.points[player];
@@ -521,7 +588,7 @@ function doStats(data, users) {
             eintragender[user] /= data.length;
             
         }
-
+		domP[user] = Math.round(domP[user]);
     }
 	for (let criteria of [wins, totalPoints, maxPoints, minPoints, participation]) {
 		let sorted = Object.entries(criteria);
@@ -559,6 +626,11 @@ function doStats(data, users) {
     new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
     new BarChart("Soli Wins", soliWins, document.getElementById("soliWins"), true);    //title, data, canvas, siPercentage
     new BarChart("No Bocks", noBockPoints, document.getElementById("noBock"), false);    //title, data, canvas, siPercentage
+	new Graph("No Bock History", individualPointHistory_nobock, document.getElementById("noBockHistory"));
+	new BarChart("ELO", eloPoints, document.getElementById("elo"), false);    //title, data, canvas, siPercentage
+	new Graph("ELO History", individualPointHistory_elo, document.getElementById("eloHistory"));
+	new BarChart("DomP", domP, document.getElementById("domp"), false);    //title, data, canvas, siPercentage
+	new Graph("DomP History", individualPointHistory_domp, document.getElementById("dompHistory"));
     new BarChart("SimP", simP, document.getElementById("simP"), false);    //title, data, canvas, siPercentage
     document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
 	//sources
