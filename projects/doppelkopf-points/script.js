@@ -147,8 +147,6 @@ class BarChart {
         this.ctx = canvas.getContext("2d");
         this.canvas = canvas;
         this.isPercentage = isPercentage;
-				console.log(title, data)
-
         this.draw();
     }
     draw() {
@@ -218,6 +216,27 @@ class Graph {
         this.data = data;
         this.ctx = canvas.getContext("2d");
         this.canvas = canvas;
+		this.colors = getDistinctColors(Object.keys(this.data).length);
+		this.maxVal = 0;
+        this.minVal = 0;
+        this.length = 0;
+        for (let i = 0; i < Object.keys(this.data).length; i++) {
+            const cur = this.data[Object.keys(this.data)[i]];
+            for (let j = 0; j < cur.length; j++) {
+                if (cur[j][1] > this.maxVal) {
+                    this.maxVal = cur[j][1];
+                }
+                if (cur[j][1] < this.minVal) {
+                    this.minVal = cur[j][1];
+                }
+            }
+            if (cur.length > 0 && cur[cur.length-1][0] > this.length) {
+                this.length = cur[cur.length-1][0];
+            }
+        }
+		if (this.maxVal == 0)
+            this.maxVal = 1;
+
         this.draw();
         this.canvas.onclick = event => {
             if (event.detail == 2) {
@@ -228,6 +247,29 @@ class Graph {
 				}
             }
         }
+		this.canvas.addEventListener("mousemove", (event) => {
+			this.draw();
+			const scaleFactorY = (this.canvas.height * 0.9 - 20) / (this.maxVal - this.minVal);
+			const scaleFactorX = (this.canvas.width * 0.9 - 20) / this.length;
+			const zeroPointY = this.canvas.height * 0.9 + this.minVal * scaleFactorY;
+			const round = Math.round(event.offsetX*this.canvas.width/this.canvas.offsetWidth/scaleFactorX);
+			const mX = round*scaleFactorX;
+			this.ctx.fillStyle = "white";
+			this.ctx.clearRect(mX-this.canvas.height/100, 0, this.canvas.height/50, this.canvas.height);
+			this.ctx.fillRect(mX-this.canvas.height/400, 0, this.canvas.height/200, this.canvas.height-this.canvas.height/20);
+			this.ctx.fillText(round, mX-this.canvas.height/40, this.canvas.height);
+			for (let i = 0; i < Object.keys(this.data).length; i++) {
+				const closest = this.data[Object.keys(this.data)[i]].reduce((prev, curr) => {
+					return Math.abs(curr[0] - round) < Math.abs(prev[0] - round) ? curr : prev;
+				});
+				this.ctx.fillStyle = this.colors[i];
+				this.ctx.fillRect(mX-this.canvas.height/100, zeroPointY-closest[1]*scaleFactorY-this.canvas.height/100, this.canvas.height/50, this.canvas.height/50)
+				this.ctx.fillText(closest[1], mX+this.canvas.height/40, zeroPointY-closest[1]*scaleFactorY+this.canvas.height/40);
+
+			}
+
+		})
+		this.canvas.addEventListener("mouseout", () => this.draw());
         let self = this;
         const w = canvas.width;
         const h = canvas.height;
@@ -244,34 +286,13 @@ class Graph {
         });
     }
     draw() {
-        const colors = getDistinctColors(Object.keys(this.data).length);
-        let maxVal = 0;
-        let minVal = 0;
-        let length = 0;
-
-        for (let i = 0; i < Object.keys(this.data).length; i++) {
-            const cur = this.data[Object.keys(this.data)[i]];
-            for (let j = 0; j < cur.length; j++) {
-                if (cur[j][1] > maxVal) {
-                    maxVal = cur[j][1];
-                }
-                if (cur[j][1] < minVal) {
-                    minVal = cur[j][1];
-                }
-            }
-            if (cur.length > 0 && cur[cur.length-1][0] > length) {
-                length = cur[cur.length-1][0];
-            }
-        }
 
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.font = `${this.canvas.height/20}px Arial`;
-        if (maxVal == 0)
-            maxVal = 1;     //to not divide by zero
-        const scaleFactorY = (this.canvas.height * 0.9 - 20) / (maxVal - minVal);
-        const scaleFactorX = (this.canvas.width * 0.9 - 20) / length;
-        const zeroPointY = this.canvas.height * 0.9 + minVal * scaleFactorY;
+        const scaleFactorY = (this.canvas.height * 0.9 - 20) / (this.maxVal - this.minVal);
+        const scaleFactorX = (this.canvas.width * 0.9 - 20) / this.length;
+        const zeroPointY = this.canvas.height * 0.9 + this.minVal * scaleFactorY;
 
         
 
@@ -279,8 +300,8 @@ class Graph {
             const key = Object.keys(this.data).sort()[i];
             const val = this.data[key];
 
-            this.ctx.fillStyle = colors[i];
-            this.ctx.strokeStyle = colors[i];
+            this.ctx.fillStyle = this.colors[i];
+            this.ctx.strokeStyle = this.colors[i];
             this.ctx.lineWidth = this.canvas.height/300;
 
             this.ctx.beginPath();
@@ -289,10 +310,10 @@ class Graph {
                 tVal = val[Object.keys(val)[j]];
                 this.ctx.lineTo(tVal[0]*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
             }
-            this.ctx.lineTo(length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
+            this.ctx.lineTo(this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
             this.ctx.stroke();
     
-            this.ctx.fillText(key.slice(0,4), length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY+this.canvas.height/60);
+            this.ctx.fillText(key.slice(0,4), this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY+this.canvas.height/60);
 
         }
     }
