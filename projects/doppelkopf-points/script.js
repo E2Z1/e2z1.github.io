@@ -157,13 +157,13 @@ class BarChart {
     }
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.font = `${this.canvas.height/25}px Arial`;
+        this.ctx.font = `${this.canvas.height/22}px Arial`;
         let maxVal = Math.max(...Object.values(this.data));
         if (maxVal == 0)
             maxVal = 1;     //to not divide by zero
         const minVal = Math.min(...Object.values(this.data), 0);	//wanted to make avg win/lose points in one plot -> negative values
                                                                 	//and total points ofc
-        const barWidth = (this.canvas.width - 20) / (Object.keys(this.data).length * 1.5);
+        const barWidth = (this.canvas.width - 20) / (Object.keys(this.data).length);
         const scaleFactor = (this.canvas.height * 0.9 - 4 - this.canvas.height/25) / (maxVal - minVal);
         const zeroPoint = Math.max(25,this.canvas.height * 0.9 + minVal * scaleFactor);
 
@@ -171,7 +171,7 @@ class BarChart {
         for (let i = 0; i < Object.keys(this.data).length; i++) {
             const key = Object.keys(this.data).sort()[i];
             const val = this.data[key];
-            const x = 20 + i * (barWidth) + barWidth * 0.25;
+            const x = 20 + i * barWidth;
             const height = val * scaleFactor;
             const y = zeroPoint - height;
 
@@ -409,7 +409,7 @@ function showTable() {
 	const blob = new Blob([csv], { type: "text/csv" });
 	document.getElementById("downloadBtn").href = URL.createObjectURL(blob);
 	document.getElementById("downloadBtn").download = "doppelkopf.csv";
-	doStats(data, fullTable.users);
+	setTimeout(() => doStats(data, fullTable.users), 1);	//this way the table gets rendered even if the stats still take some time
 }
 
 function doStats(data, users) {
