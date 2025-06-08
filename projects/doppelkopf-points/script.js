@@ -1,5 +1,10 @@
 let fullTable;
 
+const hCanv = document.createElement("canvas");
+hCanv.height = 600;
+hCanv.width = 900;
+const hCtx = hCanv.getContext("2d");
+
 function setAddr() {
     document.body.innerHTML += `
     
@@ -141,11 +146,12 @@ function getAddUsers() {
 }
 
 class BarChart {
-    constructor (title, data, canvas, isPercentage) {
+    constructor (title, data, imgElem, isPercentage) {
         this.title = title;
         this.data = data;
-        this.ctx = canvas.getContext("2d");
-        this.canvas = canvas;
+		this.imgElem = imgElem;
+        this.ctx = hCtx;//canvas.getContext("2d");
+        this.canvas = hCanv;//canvas;
         this.isPercentage = isPercentage;
         this.draw();
     }
@@ -187,6 +193,7 @@ class BarChart {
                 this.ctx.fillText(key.slice(0,4), x, zeroPoint + 2 + this.canvas.height/25);
             }
         }
+		this.imgElem.src = this.canvas.toDataURL();
     }
 }
 
@@ -208,14 +215,22 @@ function getDistinctColors(n) {
   }
 
 
-
+let graphEventListeners = [];
 
 class Graph {
-    constructor (title, data, canvas) {
+    constructor (title, data, div) {
         this.title = title;
         this.data = data;
-        this.ctx = canvas.getContext("2d");
-        this.canvas = canvas;
+		this.canvas = document.createElement("canvas");
+		this.canvas.height = 600;
+		this.canvas.width = 900;
+		this.div = div;
+		div.innerHTML = "";
+		div.appendChild(this.canvas);
+        this.ctx = this.canvas.getContext("2d");
+		div.className = "graph";
+		this.imgElem = document.createElement('img');
+		this.canvas.parentNode.insertBefore(this.imgElem, this.canvas);
 		this.colors = getDistinctColors(Object.keys(this.data).length);
 		this.maxVal = 0;
         this.minVal = 0;
@@ -238,24 +253,24 @@ class Graph {
             this.maxVal = 1;
 
         this.draw();
-        this.canvas.onclick = event => {
+        this.div.onclick = event => {
             if (event.detail == 2) {
 				if (document.fullscreenElement) {
 					document.exitFullscreen();
 				} else {
-					this.canvas.requestFullscreen();
+					this.div.requestFullscreen();
 				}
             }
         }
 		this.canvas.addEventListener("mousemove", (event) => {
-			this.draw();
+			this.ctx.font = `${this.canvas.height/20}px Arial`;
+			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 			const scaleFactorY = (this.canvas.height * 0.9 - 20) / (this.maxVal - this.minVal);
 			const scaleFactorX = (this.canvas.width * 0.9 - 20) / this.length;
 			const zeroPointY = this.canvas.height * 0.9 + this.minVal * scaleFactorY;
-			const round = Math.round(event.offsetX*this.canvas.width/this.canvas.offsetWidth/scaleFactorX);
+			const round = Math.min(Math.round(event.offsetX*this.canvas.width/this.canvas.offsetWidth/scaleFactorX), this.length);
 			const mX = round*scaleFactorX;
 			this.ctx.fillStyle = "white";
-			this.ctx.clearRect(mX-this.canvas.height/100, 0, this.canvas.height/50, this.canvas.height);
 			this.ctx.fillRect(mX-this.canvas.height/400, 0, this.canvas.height/200, this.canvas.height-this.canvas.height/20);
 			this.ctx.fillText(round, mX-this.canvas.height/40, this.canvas.height);
 			for (let i = 0; i < Object.keys(this.data).length; i++) {
@@ -264,35 +279,43 @@ class Graph {
 				});
 				this.ctx.fillStyle = this.colors[i];
 				this.ctx.fillRect(mX-this.canvas.height/100, zeroPointY-closest[1]*scaleFactorY-this.canvas.height/100, this.canvas.height/50, this.canvas.height/50)
-				this.ctx.fillText(closest[1], mX+this.canvas.height/40, zeroPointY-closest[1]*scaleFactorY+this.canvas.height/40);
+				this.ctx.fillText(Math.round(closest[1]*10)/10, mX+this.canvas.height/40, zeroPointY-closest[1]*scaleFactorY+this.canvas.height/40);
 
 			}
 
 		})
-		this.canvas.addEventListener("mouseout", () => this.draw());
-        let self = this;
-        const w = canvas.width;
-        const h = canvas.height;
-        window.addEventListener('resize', function() {
-            if (document.fullscreenElement) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                self.draw()
-            } else {
-                canvas.width = w;
-                canvas.height = h;
-                self.draw()
-            }
-        });
+		this.canvas.addEventListener("mouseout", () => this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height));
+
+		this._boundFsChange = this.fschange.bind(this);
+        document.addEventListener('fullscreenchange', this._boundFsChange);
+		graphEventListeners.push(this._boundFsChange);
     }
+	fschange() {
+		const w = 900;
+		const h = 600;
+		if (document.fullscreenElement == this.div) {
+			console.log("hi")
+			this.canvas.width = window.innerWidth;
+			this.canvas.height = window.innerHeight;
+			hCanv.width = window.innerWidth;
+			hCanv.height = window.innerHeight;
+			this.draw()
+			hCanv.width = w;
+			hCanv.height = h;
+		} else {
+			if (this.canvas.width != w || this.canvas.height != h) {
+				this.canvas.width = w;
+				this.canvas.height = h;
+				this.draw()
+			}
+		}
+	}
     draw() {
-
-
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.font = `${this.canvas.height/20}px Arial`;
-        const scaleFactorY = (this.canvas.height * 0.9 - 20) / (this.maxVal - this.minVal);
-        const scaleFactorX = (this.canvas.width * 0.9 - 20) / this.length;
-        const zeroPointY = this.canvas.height * 0.9 + this.minVal * scaleFactorY;
+        hCtx.clearRect(0, 0, hCanv.width, hCanv.height);
+        hCtx.font = `${hCanv.height/20}px Arial`;
+        const scaleFactorY = (hCanv.height * 0.9 - 20) / (this.maxVal - this.minVal);
+        const scaleFactorX = (hCanv.width * 0.9 - 20) / this.length;
+        const zeroPointY = hCanv.height * 0.9 + this.minVal * scaleFactorY;
 
         
 
@@ -300,23 +323,27 @@ class Graph {
             const key = Object.keys(this.data).sort()[i];
             const val = this.data[key];
 
-            this.ctx.fillStyle = this.colors[i];
-            this.ctx.strokeStyle = this.colors[i];
-            this.ctx.lineWidth = this.canvas.height/300;
+            hCtx.fillStyle = this.colors[i];
+            hCtx.strokeStyle = this.colors[i];
+            hCtx.lineWidth = hCanv.height/300;
 
-            this.ctx.beginPath();
+            hCtx.beginPath();
             let tVal;
             for (let j = 0; j < Object.keys(val).length; j++) {
                 tVal = val[Object.keys(val)[j]];
-                this.ctx.lineTo(tVal[0]*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
+                hCtx.lineTo(tVal[0]*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
             }
-            this.ctx.lineTo(this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
-            this.ctx.stroke();
+            hCtx.lineTo(this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
+            hCtx.stroke();
     
-            this.ctx.fillText(key.slice(0,4), this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY+this.canvas.height/60);
+            hCtx.fillText(key.slice(0,4), this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY+hCanv.height/60);
 
         }
+		this.imgElem.src = hCanv.toDataURL();
     }
+	delete() {
+
+	}
 }
 
 
@@ -631,6 +658,11 @@ function doStats(data, users) {
     if (data.length > 0) {
         bocks /= data.length;
     }
+
+	for (let list of graphEventListeners) {
+		document.removeEventListener("fullscreenchange", list);
+	}
+	graphEventListeners = [];
 
     new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
     new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
