@@ -61,6 +61,10 @@ function getAll() {
 }
 function addRound() {
     const personFields = document.getElementById("personFields");
+	if (personFields.querySelector("#eintragender").value == "") {
+		alert("The field for your identity was left empty!")
+		return;
+	}
     let sum = 0;
     let data = {}
     let valuesForNext = [];
@@ -68,18 +72,31 @@ function addRound() {
     const numbers = personFields.querySelectorAll(".number");
     for (let i = 0; i < 4; i++) {
         let number = numbers[i].value;
-        if (number != Number(number))
-            return;
+        if (number != Number(number)) {
+			alert(`Invalid input for player ${persons[i].value} (Not a Number)!`);
+			return;
+		}
+		if (persons[i].value == "") {
+			alert(`The ${i+1}. field for a user was left empty`);
+			return;
+		}
         data[persons[i].value] = Number(number);
         valuesForNext.push(persons[i].value);
         sum += Number(number);
     }
     valuesForNext.push(personFields.querySelector("#eintragender").value);
     localStorage.setItem("lastPlayers", JSON.stringify(valuesForNext));
-    if (Object.keys(data).length != 4)
-        return
-    if (sum !== 0)
-        return;
+    if (Object.keys(data).length != 4) {
+		alert("Not enough players were listed!");
+		return;
+	}
+    if (sum !== 0) {
+		alert("The values don't add up to 0!");
+		return;
+	}
+
+
+	document.getElementById("addRoundBtn").disabled = true;
 
     fetch(server+"/functions/v1/addRound", {
         method: "POST",
@@ -118,7 +135,7 @@ function getAddUsers() {
                         <select class='person'>
                             ${persons.map(person => `<option value="${person}">${person}</option>`).join("")}
                         </select>
-                        <input type="number" class="number" placeholder="Enter points" required>
+                        <input ${navigator.userAgent.match(/iPhone|iPod|iPad/i) ? 'type="number"' : 'type="text"'} class="number" placeholder="Enter points" required>
                     `;
                     personFields.appendChild(div);
                 }
@@ -741,4 +758,8 @@ if (document.getElementById("full")) {
 }
 if (document.getElementById("addRound")) {
     getAddUsers();
+}
+
+if (localStorage.getItem("isAdmin") && !location.pathname.includes("admin")) {
+	document.getElementById("sub_nav").innerHTML += '<a id="admin_tab" href="/projects/doppelkopf-points/admin">Admin</a>'
 }
