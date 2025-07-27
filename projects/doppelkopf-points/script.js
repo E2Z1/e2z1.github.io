@@ -170,7 +170,14 @@ class BarChart {
         this.ctx = hCtx;//canvas.getContext("2d");
         this.canvas = hCanv;//canvas;
         this.isPercentage = isPercentage;
-        this.draw();
+		if (typeof OffscreenCanvas !== 'undefined' && window.Worker) {
+			const worker = new Worker('../chartWorker.js');
+			worker.postMessage(data);
+			worker.onmessage = (e) => {
+				this.imgElem.src = e.data;
+				worker.terminate();
+			}
+		} else this.draw();
     }
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -216,17 +223,12 @@ class BarChart {
 
 function getDistinctColors(n) {
     const colors = [];
-    const hueStep = 360 / n;    //to be differntaible from purple
+    const hueStep = 360 / n;
     
     for (let i = 0; i < n; i++) {
       const hue = i * hueStep;
       const color = `hsl(${hue}, 100%, 50%)`;
       colors.push(color);
-    }
-    if (n == 9) {   //for now
-        return ['hsl(0, 100%, 50%)','hsl(25, 100.00%, 50.00%)','hsl(57, 100.00%, 50.00%)',
-            'hsl(84, 100.00%, 72.50%)','hsl(160, 100%, 50%)','hsl(178, 100.00%, 50.00%)',
-            'hsl(286, 100.00%, 82.70%)','hsl(316, 100%, 71%)','hsl(320, 100.00%, 56.90%)']
     }
     return colors;
   }
@@ -311,7 +313,6 @@ class Graph {
 		const w = 900;
 		const h = 600;
 		if (document.fullscreenElement == this.div) {
-			console.log("hi")
 			this.canvas.width = window.innerWidth;
 			this.canvas.height = window.innerHeight;
 			hCanv.width = window.innerWidth;
@@ -328,35 +329,44 @@ class Graph {
 		}
 	}
     draw() {
-        hCtx.clearRect(0, 0, hCanv.width, hCanv.height);
-        hCtx.font = `${hCanv.height/20}px Arial`;
-        const scaleFactorY = (hCanv.height * 0.9 - 20) / (this.maxVal - this.minVal);
-        const scaleFactorX = (hCanv.width * 0.9 - 20) / this.length;
-        const zeroPointY = hCanv.height * 0.9 + this.minVal * scaleFactorY;
+		if (typeof OffscreenCanvas !== 'undefined' && window.Worker) {
+			const worker = new Worker('../graphWorker.js');
+			worker.postMessage({data: this.data, w: hCanv.width, h: hCanv.height, diff: this.maxVal-this.minVal, colors: this.colors, length: this.length, minVal: this.minVal});
+			worker.onmessage = (e) => {
+				this.imgElem.src = e.data;
+				worker.terminate();
+			}
+		} else {
+			hCtx.clearRect(0, 0, hCanv.width, hCanv.height);
+			hCtx.font = `${hCanv.height/20}px Arial`;
+			const scaleFactorY = (hCanv.height * 0.9 - 20) / (this.maxVal - this.minVal);
+			const scaleFactorX = (hCanv.width * 0.9 - 20) / this.length;
+			const zeroPointY = hCanv.height * 0.9 + this.minVal * scaleFactorY;
 
-        
+			
 
-        for (let i = 0; i < Object.keys(this.data).length; i++) {
-            const key = Object.keys(this.data).sort()[i];
-            const val = this.data[key];
+			for (let i = 0; i < Object.keys(this.data).length; i++) {
+				const key = Object.keys(this.data).sort()[i];
+				const val = this.data[key];
 
-            hCtx.fillStyle = this.colors[i];
-            hCtx.strokeStyle = this.colors[i];
-            hCtx.lineWidth = hCanv.height/300;
+				hCtx.fillStyle = this.colors[i];
+				hCtx.strokeStyle = this.colors[i];
+				hCtx.lineWidth = hCanv.height/300;
 
-            hCtx.beginPath();
-            let tVal;
-            for (let j = 0; j < Object.keys(val).length; j++) {
-                tVal = val[Object.keys(val)[j]];
-                hCtx.lineTo(tVal[0]*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
-            }
-            hCtx.lineTo(this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
-            hCtx.stroke();
-    
-            hCtx.fillText(key.slice(0,4), this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY+hCanv.height/60);
+				hCtx.beginPath();
+				let tVal;
+				for (let j = 0; j < Object.keys(val).length; j++) {
+					tVal = val[Object.keys(val)[j]];
+					hCtx.lineTo(tVal[0]*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
+				}
+				hCtx.lineTo(this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
+				hCtx.stroke();
+		
+				hCtx.fillText(key.slice(0,4), this.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY+hCanv.height/60);
 
-        }
-		this.imgElem.src = hCanv.toDataURL();
+			}
+			this.imgElem.src = hCanv.toDataURL();
+		}
     }
 	delete() {
 
