@@ -172,7 +172,7 @@ class BarChart {
         this.isPercentage = isPercentage;
 		if (typeof OffscreenCanvas !== 'undefined' && window.Worker) {
 			const worker = new Worker('../chartWorker.js');
-			worker.postMessage(data);
+			worker.postMessage({data, isPercentage});
 			worker.onmessage = (e) => {
 				this.imgElem.src = e.data;
 				worker.terminate();

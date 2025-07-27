@@ -1,7 +1,7 @@
 onmessage = async (e) => {
 	const canvas = new OffscreenCanvas(900, 600)
 	const ctx = canvas.getContext("2d");
-	const data = e.data;
+	const data = e.data.data;
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.font = `${canvas.height/22}px Arial`;
@@ -26,7 +26,7 @@ onmessage = async (e) => {
 		ctx.fillRect(x, y, barWidth/1.5, height);
 
 		let valText = "" + Math.round(val*100)/100;
-		if (this.isPercentage) {
+		if (e.data.isPercentage) {
 			valText = "" + Math.round(val*100) + "%";
 		}
 		if (val < 0) {
