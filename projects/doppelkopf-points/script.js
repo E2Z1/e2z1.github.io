@@ -6,6 +6,8 @@ hCanv.width = 900;
 const hCtx = hCanv.getContext("2d");
 
 function setAddr() {
+	if (document.getElementsByClassName("popUp").length != 0)
+		return;
     document.body.innerHTML += `
     
   <div class="popUp">
@@ -15,6 +17,45 @@ function setAddr() {
   </div>`
     
 }
+
+function login() {
+	if (document.getElementsByClassName("popUp").length != 0)
+		return;
+    document.body.innerHTML += `
+  <div class="popUp">
+    <input type="text" id="login_name" placeholder="name">
+    <input type="text" id="login_pw" placeholder="password">
+    <button onclick="sendLogin()">Login</button>
+  </div>`
+}
+
+function sendLogin() {
+	const cred = JSON.stringify({
+            name: document.getElementById("login_name").value,
+            password: document.getElementById("login_pw").value
+        });
+	fetch(server+"/functions/v1/getAuthLevel", {
+        method: "POST",
+        body: cred,
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8"
+        }
+    })
+        .then((response) => response.json())
+        .then((json) => {
+            if (json.success) {
+                if (json.auth.authlevel > 1)
+					localStorage.setItem("isAdmin", json.auth.authlevel)
+				else 
+					localStorage.removeItem("isAdmin")
+				localStorage.setItem("creds", cred);
+				window.location.reload()
+            } else {
+				alert("Error");
+			}
+        });
+}
+
 if (!localStorage.getItem("server")) {
     setAddr();
 }
@@ -30,7 +71,6 @@ function getCurrent() {
     })
         .then((response) => response.json())
         .then((json) => {
-			console.log(json)
             if (json.success) {
                 let table = document.getElementById("cur").querySelector("table");
                 let html = `<tr><th>No.</th>`;
