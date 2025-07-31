@@ -163,6 +163,7 @@ function getAddUsers() {
         .then((response) => response.json())
         .then((json) => {
             if (json.success) {
+				document.getElementById("addRound").innerHTML = `<h2>Round no ${json.roundData.id} with ${json.roundData.bock} Bock</h2>` + document.getElementById("addRound").innerHTML
                 const personFields = document.getElementById("personFields");
                 let persons = [];
 				json.users.sort((a,b) => a.name.localeCompare(b.name))
