@@ -32,16 +32,22 @@
 		<button onclick="delRound()">Delete</button>
 	</div>
 	<div>
-		<h2>Add round</h2>
+		<h2>Backdate round</h2>
 	</div>
 	<div>
 		<h2>Change round</h2>
+		<input onblur="fetchRound()" type="number" placeholder="No" id="bdr">
+		<div id="addRound">
+			<div id="personFields">
+			</div>
+		</div>
 	</div>
 	<div id="massEntryTable">
 		<h2>Mass Entry</h2>
 		<table>
 		</table>
 	</div>
+	<button onclick="fetch(server+'/functions/v1/fixCurrent')">Fix Current Points</button>
 
 <script src="script.js"></script>
 </body>

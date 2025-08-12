@@ -61,7 +61,7 @@ if (!localStorage.getItem("server")) {
 }
 const server = localStorage.getItem("server");
 if (document.getElementById("quote")) {
-    const quotes = ["Doppelkopf ist die META", "Skillissue", "Der Sinn des Lebens ist Doppelkopf", "Ein Tag ohne Doppelkopf ist ein Tag ohne Sinn", "Entweder spielt man Doppelkopf oder man sieht das eigene Leben an einem vorbeiziehen", "Oeddeloeddeldoeddel", "Das ist nen goofie Blatt"]
+    const quotes = ["Doppelkopf ist die META", "Skillissue", "Der Sinn des Lebens ist Doppelkopf", "Ein Tag ohne Doppelkopf ist ein Tag ohne Sinn", "Entweder spielt man Doppelkopf oder man sieht das eigene Leben an einem vorbeiziehen", "Oeddeloeddeldoeddel", "Das ist nen goofie Blatt", "Pik-10-Gameplay"]
     document.getElementById("quote").innerText = "„" + quotes[Math.floor(Math.random() * quotes.length)] + "“";
 }
 
@@ -74,9 +74,28 @@ function getCurrent() {
             if (json.success) {
                 let table = document.getElementById("cur").querySelector("table");
                 let html = `<tr><th>No.</th>`;
+
+
+				let sorted = json.users.slice();
+				sorted.sort((a, b) => b.points - a.points);
+				let ranks = {};
+				let points = 0;
+				let prevCritPoint;
+				let numSameRank = 0;
+				for (let i of sorted) {
+					if (i.points == prevCritPoint) {
+						numSameRank++;
+					} else {
+						points += 1 + numSameRank;
+						numSameRank = 0;
+						prevCritPoint = i.points;
+					}
+					ranks[i.name] = points;
+				}
+
 				json.users.sort((a,b) => a.name.localeCompare(b.name))
                 for (let user of json.users) {
-                    html += `<th>${user.name}</th>`;
+                    html += `<th>${user.name} (${ranks[user.name]})</th>`;
                 }
                 html += `<th>Böcke</th></tr><tr><td>${json.data.id}</td>`;
                 for (let user of json.users) {
@@ -812,5 +831,5 @@ if (document.getElementById("addRound")) {
 }
 
 if (localStorage.getItem("isAdmin") && !location.pathname.includes("admin")) {
-	document.getElementById("sub_nav").innerHTML += '<a id="admin_tab" href="/projects/doppelkopf-points/admin">Admin</a>'
+	document.getElementById("sub_nav").insertAdjacentHTML('afterend', '<a id="admin_tab" href="/projects/doppelkopf-points/admin">Admin</a>');
 }

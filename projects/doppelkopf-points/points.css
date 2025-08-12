@@ -3,10 +3,9 @@
     display: flex;
     width: 100%;
     gap: 3px;
-    border-radius: 4px;
 }
 
-#sub_nav a {
+#sub_nav a, #admin_tab {
     flex: 1;
     background-color: white;
     text-align: center;
@@ -14,6 +13,13 @@
     -webkit-text-fill-color: #232369; 
 	-webkit-opacity: 1;
     text-decoration: none;
+}
+
+#admin_tab {
+	margin-top: 3px;
+    display: flex;
+    width: 100%;
+	justify-content: center;
 }
 
 
