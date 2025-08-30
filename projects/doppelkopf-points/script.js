@@ -65,6 +65,10 @@ if (document.getElementById("quote")) {
     document.getElementById("quote").innerText = "„" + quotes[Math.floor(Math.random() * quotes.length)] + "“";
 }
 
+function isPWA() {
+    return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+}
+
 function getCurrent() {
     fetch(server+"/functions/v1/getCurrent", {
         method: "GET",

@@ -1,0 +1,26 @@
+{
+    "name": "Doppelkopf Pukte Tabelle",
+    "short_name": "Tabelle",
+    "start_url": "/projects/doppelkopf-points/",
+    "scope": "/projects/doppelkopf-points/",
+    "display": "standalone",
+    "background_color": "#232369",
+    "theme_color": "#232369",
+    "icons": [
+        {
+            "src": "/imgs/logo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "/imgs/logo-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/imgs/logo-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
