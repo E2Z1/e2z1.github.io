@@ -5,80 +5,133 @@
 	src: url(/Asar-Regular.woff2) format('woff2');
 }
 
-@property --c1 {
-  syntax: '<color>';
-  initial-value: #232369;
-  inherits: false;
+:root {
+	--c1: #232369;
+	--c2: #240078;
+	--c1l: #2b2b99;
+	--c2l: #3600b4;
+
+	--text: #fff;
+	--heading: #fff;
+    --link: #fff;
+	--hover: #7e7eff;
+	
+
+	--bg: #100035;
 }
 
-@property --c2 {
-  syntax: '<color>';
-  initial-value: #240078;
-  inherits: false;
+[data-theme="catppuccin"] {
+	--c1: #11111b;
+	--c2: #11111b;
+	--c1l: #181825;
+	--c2l: #181825;
+
+    --text: #cdd6f4;
+    --heading: #f5c2e7;
+    --link: #f5c2e7;
+    --hover: #f5c2e7;
+
+
+    --bg: #1e1e2e;
+}
+
+[data-theme="gruvbox"] {
+	--c1: #1d2021;
+	--c2: #1d2021;
+	--c1l: #504945;
+	--c2l: #504945;
+
+    --text: #ebdbb2;
+    --heading: #ebdbb2;
+    --link: #fbf1c7;
+    --hover: #fbf1c7;
+
+
+    --bg: #282828;
+}
+
+[data-theme="flashlight"] {
+	--c1: #fff;
+	--c2: #fff;
+	--c1l: #fff;
+	--c2l: #fff;
+
+    --text: #000;
+    --heading: #000;
+    --link: #000;
+    --hover: #000;
+
+
+    --bg: #fff;
 }
 
 * {
-  font-family: 'Asar', serif;
+	font-family: 'Asar', serif;
 }
 
-
 body {
-  background: linear-gradient(45deg, #202025, #100035);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-attachment: fixed;
-  color: white;
-  
+	background: var(--bg);
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-attachment: fixed;
+	color: var(--text);
+	
 }
 
 
 nav {
-  width: 150px;
-  display: flex;
-  height: 100px;
+	width: 150px;
+	display: flex;
+	height: 100px;
 }
 nav #title {
-  position: absolute;
-  top: 0;
-  pointer-events: none;
-  user-select: none;
+	position: absolute;
+	top: 0;
+	pointer-events: none;
+	user-select: none;
 }
 
 nav #title h1 {
-  position: absolute;
-  font-size: 50px;
-  left: 5px;
-  top: 0px;
-  margin: 0;
+	position: absolute;
+	font-size: 50px;
+	left: 5px;
+	top: 0px;
+	margin: 0;
 }
 
 nav #title h2 {
-  margin: 0;
-  font-size: 25px;
-  margin-top: 0;
-  letter-spacing: 5px;
-  position: absolute;
-  text-wrap: no-wrap;
-  left: 7px;
-  top: 50px;
+	margin: 0;
+	font-size: 25px;
+	margin-top: 0;
+	letter-spacing: 5px;
+	position: absolute;
+	text-wrap: no-wrap;
+	left: 7px;
+	top: 50px;
 }
 
 nav ul {
-  list-style-type: none;
-  position: absolute;
-  right: 10px;
+	list-style-type: none;
+	position: absolute;
+	right: 10px;
+	margin: 9px;
+}
+
+a {
+	text-decoration: none;
+	color: var(--link);
+	user-select: none;
+	cursor: pointer;
 }
 
 nav a {
-  display: block;
-  text-decoration: none;
-  color: white;
-  transition: 0.1s;
+	display: block;
+	transition: 0.1s;
 }
 
 nav a:hover {
-  color: #7e7eff;
-  transform: translate(-4px,0);
+	color: var(--hover);
+	transform: translate(-4px,0);
 }
-  
+	
 
