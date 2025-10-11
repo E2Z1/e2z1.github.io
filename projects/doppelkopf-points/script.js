@@ -170,6 +170,7 @@ function addRound() {
 
 
 	document.getElementById("addRoundBtn").disabled = true;
+    potIncreaseCycleIndex();
 
     fetch(server+"/functions/v1/addRound", {
         method: "POST",
@@ -232,8 +233,79 @@ function getAddUsers() {
                 for (let i = 0; i < personFields.querySelectorAll("select").length; i++) {
                     personFields.querySelectorAll("select")[i].value = lastValues[i];
                 }
+                document.querySelector("#cycle").innerHTML += `<select id="nextAdded">
+                            ${persons.map(person => `<option value="${person}">${person}</option>`).join("")}
+                </select>
+                <button id="addCycleMember" onclick="addCycleMember()">Add Cycle Member</button>
+                `;
+                document.getElementById("addRound").style.display = "block";
+
+                cycleStuffOnLoad();
+                if (localStorage.getItem("doCycle") == "true") {
+                    loadCurrentCycle();
+                }
+
             } else console.error(json.message);
         });
+}
+
+function cycleStuffOnLoad() {
+    if (!localStorage.getItem("cycleMembers")) {
+        localStorage.setItem("cycleMembers", "[]");
+    }
+    let mems = JSON.parse(localStorage.getItem("cycleMembers"));
+    document.querySelector("#cycleMembers").innerHTML = "";
+    for (let i of mems) {
+        document.querySelector("#cycleMembers").innerHTML += `<a onclick="removeCycleMember('${i}')"> ${i} </a>`;
+    }
+    document.getElementById("doCycle").checked = localStorage.getItem("doCycle") == "true";
+}
+
+function potIncreaseCycleIndex() {
+    if (localStorage.getItem("doCycle") == "true") {
+        if (!localStorage.getItem("cycleIndex")) {
+            localStorage.setItem("cycleIndex", 0);
+        }
+        localStorage.setItem("cycleIndex", Number.parseInt(localStorage.getItem("cycleIndex"))+1);
+    }
+}
+
+function loadCurrentCycle() {
+    if (!localStorage.getItem("cycleIndex")) {
+        localStorage.setItem("cycleIndex", 0);
+    }
+    const ind = Number.parseInt(localStorage.getItem("cycleIndex"));
+    const personFields = document.getElementById("personFields");
+    const mems = JSON.parse(localStorage.getItem("cycleMembers"));
+    for (let i = 0; i < 4; i++) {
+        personFields.querySelectorAll("select")[i].value = mems[(i+ind)%mems.length];
+    }
+}
+
+function setDoCylce() {
+    localStorage.setItem("doCycle", document.getElementById("doCycle").checked);
+    if (document.getElementById("doCycle").checked)
+        loadCurrentCycle();
+}
+
+function addCycleMember() {
+    if (!localStorage.getItem("cycleMembers")) {
+        localStorage.setItem("cycleMembers", "[]");
+    }
+    let mems = JSON.parse(localStorage.getItem("cycleMembers"));
+    if (mems.includes(document.getElementById("nextAdded").value))
+        return;
+    mems.push(document.getElementById("nextAdded").value);
+    localStorage.setItem("cycleMembers", JSON.stringify(mems));
+    cycleStuffOnLoad();
+}
+
+function removeCycleMember(member) {
+    let mems = JSON.parse(localStorage.getItem("cycleMembers"));
+    mems = mems.filter(m => m != member);
+    localStorage.setItem("cycleMembers", JSON.stringify(mems));
+    cycleStuffOnLoad();
+
 }
 
 class BarChart {

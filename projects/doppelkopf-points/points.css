@@ -25,6 +25,7 @@
 
 #addRound {
     margin-top: 8px;
+	display: none;
 }
 
 #addRound input {
@@ -32,7 +33,7 @@
 	margin: 3px;
 }
 
-#addRound button {
+#addRoundBtn {
     font-size: 20px;
 }
 
@@ -141,7 +142,7 @@ a {
 
 
 .popUp {
-    background: var(--heading);
+    background: var(--text);
     border-radius: 10px;
     justify-content: center;
     align-items: center;
@@ -157,7 +158,7 @@ a {
 }
 
 .popUp button {
-    color: white;
+    color: var(--text);
     background-color: var(--c1);
     margin: 5px;
 	-webkit-text-fill-color: var(--text); 
@@ -165,7 +166,7 @@ a {
 }
 .popUp input {
     background-color: var(--c1);
-    color: white;
+    color: var(--text);
 	-webkit-text-fill-color: var(--text); 
 	-webkit-opacity: 1;
 }
@@ -217,7 +218,7 @@ a {
 	position: fixed;
 	bottom: 80px;
 	right: 20px;
-	background-color: white;
+	background-color: var(--text);
 	padding: 20px;
 	border-radius: 4px;
 	max-height: calc(100vh - 140px);
@@ -243,4 +244,8 @@ a {
 
 input, select {
 	background: var(--text);
+}
+
+#personFields {
+	margin-top: 30px;
 }

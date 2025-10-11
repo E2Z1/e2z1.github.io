@@ -24,7 +24,6 @@ onmessage = async (e) => {
 
 		for (let j = 0; j < val.length; j+=Math.ceil(val.length/smoothness)) {
 			if (j != 0 && val[j-1][0] != val[j][0]-1) {	
-				console.log("hi")
 				tVal = val[j-1];
 				ctx.lineTo((val[j][0]-1)*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);	
 			}
