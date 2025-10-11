@@ -2,6 +2,7 @@ onmessage = async (e) => {
 	const canvas = new OffscreenCanvas(e.data.w, e.data.h)
 	const ctx = canvas.getContext("2d");
 	const data = e.data.data;
+	const smoothness = e.data.smoothness;
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.font = `${canvas.height/20}px Arial`;
@@ -20,10 +21,17 @@ onmessage = async (e) => {
 
 		ctx.beginPath();
 		let tVal;
-		for (let j = 0; j < Object.keys(val).length; j++) {
-			tVal = val[Object.keys(val)[j]];
+
+		for (let j = 0; j < val.length; j+=Math.ceil(val.length/smoothness)) {
+			if (j != 0 && val[j-1][0] != val[j][0]-1) {	
+				console.log("hi")
+				tVal = val[j-1];
+				ctx.lineTo((val[j][0]-1)*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);	
+			}
+			tVal = val[j];
 			ctx.lineTo(tVal[0]*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
 		}
+		tVal = val[val.length-1]
 		ctx.lineTo(e.data.length*scaleFactorX, zeroPointY - tVal[1]*scaleFactorY);
 		ctx.stroke();
 

@@ -29,6 +29,16 @@ function login() {
   </div>`
 }
 
+function setSmoothness() {
+	if (document.getElementsByClassName("popUp").length != 0)
+		return;
+    document.body.innerHTML += `
+  <div class="popUp">
+    <input type="number" id="smoothnessInput" placeholder="Graph Accuracy">
+    <button onclick="localStorage.setItem('smoothness', document.getElementById('smoothnessInput').value); window.location.reload()">Set</button>
+  </div>`
+}
+
 function sendLogin() {
 	const cred = JSON.stringify({
             name: document.getElementById("login_name").value,
@@ -395,7 +405,9 @@ class Graph {
     draw() {
 		if (typeof OffscreenCanvas !== 'undefined' && window.Worker) {
 			const worker = new Worker('../graphWorker.js');
-			worker.postMessage({data: this.data, w: hCanv.width, h: hCanv.height, diff: this.maxVal-this.minVal, colors: this.colors, length: this.length, minVal: this.minVal});
+			worker.postMessage({data: this.data, w: hCanv.width, h: hCanv.height,
+                 diff: this.maxVal-this.minVal, colors: this.colors, length: this.length,
+                  minVal: this.minVal, smoothness: localStorage.getItem("smoothness") ? localStorage.getItem("smoothness") : 1000});
 			worker.onmessage = (e) => {
 				this.imgElem.src = e.data;
 				worker.terminate();
@@ -577,12 +589,12 @@ function doStats(data, users) {
         if (Number(round.bock) > 0) {
             bocks += 1.0;
         }
-		for (let player of userNames.filter(item => !Object.keys(round.points).includes(item))) {
+		/*for (let player of userNames.filter(item => !Object.keys(round.points).includes(item))) {
 			individualPointHistory[player].push([rnd, individualPointHistory[player][individualPointHistory[player].length-1][1]]);
 			individualPointHistory_nobock[player].push([rnd, individualPointHistory_nobock[player][individualPointHistory_nobock[player].length-1][1]]);
 			individualPointHistory_elo[player].push([rnd, individualPointHistory_elo[player][individualPointHistory_elo[player].length-1][1]]);
 			individualPointHistory_domp[player].push([rnd, individualPointHistory_domp[player][individualPointHistory_domp[player].length-1][1]]);
-		}
+		}*/
         for (let i = 0; i < Object.keys(round.points).length; i++) {
 			let player = Object.keys(round.points)[i];
 			let nb;
