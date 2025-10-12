@@ -124,8 +124,8 @@ td {
 	display: inline-block;
 	position: relative;
 	width: 450px;
-	height: 300px;
 	overflow: hidden;
+	aspect-ratio: 3/2;
 }
 
 .graph > * {
