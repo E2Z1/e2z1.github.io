@@ -75,7 +75,7 @@ button, #downloadBtn {
     touch-action: manipulation;
 }
 
-#full table {
+#full table, #cur table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
@@ -136,10 +136,9 @@ td {
 	height: 100%;
 }
 
-a {
-	color: #f1f1f1;
+rect, text {
+	fill: var(--text);
 }
-
 
 .popUp {
     background: var(--text);
@@ -244,6 +243,7 @@ a {
 
 input, select {
 	background: var(--text);
+	color: var(--bg);
 }
 
 #personFields {

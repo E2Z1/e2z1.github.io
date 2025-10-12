@@ -5,7 +5,7 @@ if (localStorage.getItem("theme")) {
 	document.body.setAttribute("data-theme", localStorage.getItem("theme"));
 }
 
-const themes = ["default", "catppuccin", "gruvbox", "flashlight"];
+const themes = ["Default", "Catppuccin", "Gruvbox", "Nord", "Flashlight", "Dominic"];
 function changeTheme(theme) {
 	localStorage.setItem("theme", theme);
 	document.body.setAttribute("data-theme", theme);

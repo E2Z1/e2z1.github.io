@@ -3,6 +3,10 @@
     flex-wrap: wrap;
 }
 
+[data-theme="flashlight"] #projects .card {
+    border: 2px solid black;
+}
+
 #projects .card {
     margin: 10px;
     border-radius: 5px;
