@@ -170,7 +170,6 @@ function addRound() {
 
 
 	document.getElementById("addRoundBtn").disabled = true;
-    potIncreaseCycleIndex();
 
     fetch(server+"/functions/v1/addRound", {
         method: "POST",
@@ -187,6 +186,7 @@ function addRound() {
         .then((json) => {
             if (json.success) {
                 document.location.href = ".."
+                potIncreaseCycleIndex();
             } else console.error(json.message);
         });
 }
@@ -264,7 +264,7 @@ function cycleStuffOnLoad() {
 
 function potIncreaseCycleIndex() {
     if (localStorage.getItem("doCycle") == "true") {
-        if (!localStorage.getItem("cycleIndex")) {
+        if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN") {
             localStorage.setItem("cycleIndex", 0);
         }
         localStorage.setItem("cycleIndex", Number.parseInt(localStorage.getItem("cycleIndex"))+1);
@@ -272,7 +272,7 @@ function potIncreaseCycleIndex() {
 }
 
 function loadCurrentCycle() {
-    if (!localStorage.getItem("cycleIndex")) {
+    if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN") {
         localStorage.setItem("cycleIndex", 0);
     }
     const ind = Number.parseInt(localStorage.getItem("cycleIndex"));
@@ -296,6 +296,8 @@ function addCycleMember() {
     let mems = JSON.parse(localStorage.getItem("cycleMembers"));
     if (mems.includes(document.getElementById("nextAdded").value))
         return;
+    if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN")
+        localStorage.setItem("cycleIndex", 0);
     localStorage.setItem("cycleIndex", localStorage.getItem("cycleIndex")%mems.length);
     mems.push(document.getElementById("nextAdded").value);
     localStorage.setItem("cycleMembers", JSON.stringify(mems));
@@ -304,6 +306,8 @@ function addCycleMember() {
 
 function removeCycleMember(member) {
     let mems = JSON.parse(localStorage.getItem("cycleMembers"));
+    if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN")
+        localStorage.setItem("cycleIndex", 0);
     const starter = mems[localStorage.getItem("cycleIndex")%mems.length];
     mems = mems.filter(m => m != member);
     localStorage.setItem("cycleMembers", JSON.stringify(mems));

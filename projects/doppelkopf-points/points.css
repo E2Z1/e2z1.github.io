@@ -117,7 +117,10 @@ td {
 .barChart, .graph, .graph > canvas, .graph > img {
     max-width: 100%;
     overflow-x: scroll;
-	user-select: none;
+	user-select: none;  
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
 }
 
 .graph {
