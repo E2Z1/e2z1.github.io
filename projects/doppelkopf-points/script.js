@@ -8,86 +8,86 @@ const hCtx = hCanv.getContext("2d");
 function setAddr() {
 	if (document.getElementsByClassName("popUp").length != 0)
 		return;
-    document.body.innerHTML += `
-    
+	document.body.innerHTML += `
+	
   <div class="popUp">
-    <h3>Enter the start of the server address:</h3>
-    <input type="text" name="add" id="srv_addr">
-    <button onclick="localStorage.setItem('server', 'https://'+document.getElementById('srv_addr').value+'dymszuuaqyugwf.supabase.co'); window.location.reload()">Save</button>
+	<h3>Enter the start of the server address:</h3>
+	<input type="text" name="add" id="srv_addr">
+	<button onclick="localStorage.setItem('server', 'https://'+document.getElementById('srv_addr').value+'dymszuuaqyugwf.supabase.co'); window.location.reload()">Save</button>
   </div>`
-    
+	
 }
 
 function login() {
 	if (document.getElementsByClassName("popUp").length != 0)
 		return;
-    document.body.innerHTML += `
+	document.body.innerHTML += `
   <div class="popUp">
-    <input type="text" id="login_name" placeholder="name">
-    <input type="text" id="login_pw" placeholder="password">
-    <button onclick="sendLogin()">Login</button>
+	<input type="text" id="login_name" placeholder="name">
+	<input type="text" id="login_pw" placeholder="password">
+	<button onclick="sendLogin()">Login</button>
   </div>`
 }
 
 function setSmoothness() {
 	if (document.getElementsByClassName("popUp").length != 0)
 		return;
-    document.body.innerHTML += `
+	document.body.innerHTML += `
   <div class="popUp">
-    <input type="number" id="smoothnessInput" placeholder="Graph Accuracy">
-    <button onclick="localStorage.setItem('smoothness', document.getElementById('smoothnessInput').value); window.location.reload()">Set</button>
+	<input type="number" id="smoothnessInput" placeholder="Graph Accuracy">
+	<button onclick="localStorage.setItem('smoothness', document.getElementById('smoothnessInput').value); window.location.reload()">Set</button>
   </div>`
 }
 
 function sendLogin() {
 	const cred = JSON.stringify({
-            name: document.getElementById("login_name").value,
-            password: document.getElementById("login_pw").value
-        });
+			name: document.getElementById("login_name").value,
+			password: document.getElementById("login_pw").value
+		});
 	fetch(server+"/functions/v1/getAuthLevel", {
-        method: "POST",
-        body: cred,
-        headers: {
-            "Content-Type": "application/json; charset=UTF-8"
-        }
-    })
-        .then((response) => response.json())
-        .then((json) => {
-            if (json.success) {
-                if (json.auth.authlevel > 1)
+		method: "POST",
+		body: cred,
+		headers: {
+			"Content-Type": "application/json; charset=UTF-8"
+		}
+	})
+		.then((response) => response.json())
+		.then((json) => {
+			if (json.success) {
+				if (json.auth.authlevel > 1)
 					localStorage.setItem("isAdmin", json.auth.authlevel)
 				else 
 					localStorage.removeItem("isAdmin")
 				localStorage.setItem("creds", cred);
 				window.location.reload()
-            } else {
+			} else {
 				alert("Error");
 			}
-        });
+		});
 }
 
 if (!localStorage.getItem("server")) {
-    setAddr();
+	setAddr();
 }
 const server = localStorage.getItem("server");
 if (document.getElementById("quote")) {
-    const quotes = ["Doppelkopf ist die META", "Skillissue", "Der Sinn des Lebens ist Doppelkopf", "Ein Tag ohne Doppelkopf ist ein Tag ohne Sinn", "Entweder spielt man Doppelkopf oder man sieht das eigene Leben an einem vorbeiziehen", "Oeddeloeddeldoeddel", "Das ist nen goofie Blatt", "Pik-10-Gameplay"]
-    document.getElementById("quote").innerText = "„" + quotes[Math.floor(Math.random() * quotes.length)] + "“";
+	const quotes = ["Doppelkopf ist die META", "Skillissue", "Der Sinn des Lebens ist Doppelkopf", "Ein Tag ohne Doppelkopf ist ein Tag ohne Sinn", "Entweder spielt man Doppelkopf oder man sieht das eigene Leben an einem vorbeiziehen", "Oeddeloeddeldoeddel", "Das ist nen goofie Blatt", "Pik-10-Gameplay"]
+	document.getElementById("quote").innerText = "„" + quotes[Math.floor(Math.random() * quotes.length)] + "“";
 }
 
 function isPWA() {
-    return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+	return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 }
 
 function getCurrent() {
-    fetch(server+"/functions/v1/getCurrent", {
-        method: "GET",
-    })
-        .then((response) => response.json())
-        .then((json) => {
-            if (json.success) {
-                let table = document.getElementById("cur").querySelector("table");
-                let html = `<tr><th>No.</th>`;
+	fetch(server+"/functions/v1/getCurrent", {
+		method: "GET",
+	})
+		.then((response) => response.json())
+		.then((json) => {
+			if (json.success) {
+				let table = document.getElementById("cur").querySelector("table");
+				let html = `<tr><th>No.</th>`;
 
 
 				let sorted = json.users.slice();
@@ -108,44 +108,44 @@ function getCurrent() {
 				}
 
 				json.users.sort((a,b) => a.name.localeCompare(b.name))
-                for (let user of json.users) {
-                    html += `<th>${user.name} (${ranks[user.name]})</th>`;
-                }
-                html += `<th>Böcke</th></tr><tr><td>${json.data.id}</td>`;
-                for (let user of json.users) {
-                    html += `<td>${user.points}</td>`;
-                }
-                html += `<td>${json.data.bock}</td></tr>`;
-                table.innerHTML = html;
-            } else console.error(json.message);
-        });
+				for (let user of json.users) {
+					html += `<th>${user.name} (${ranks[user.name]})</th>`;
+				}
+				html += `<th>Böcke</th></tr><tr><td>${json.data.id}</td>`;
+				for (let user of json.users) {
+					html += `<td>${user.points}</td>`;
+				}
+				html += `<td>${json.data.bock}</td></tr>`;
+				table.innerHTML = html;
+			} else console.error(json.message);
+		});
 }
 function getAll() {
-    fetch(server+"/functions/v1/getAll", {
-        method: "GET",
-    })
-        .then((response) => response.json())
-        .then((json) => {
-            if (json.success) {
+	fetch(server+"/functions/v1/getAll", {
+		method: "GET",
+	})
+		.then((response) => response.json())
+		.then((json) => {
+			if (json.success) {
 				fullTable = json;
-                showTable();
-            } else console.error(json.message);
-        });
+				showTable();
+			} else console.error(json.message);
+		});
 }
 function addRound() {
-    const personFields = document.getElementById("personFields");
+	const personFields = document.getElementById("personFields");
 	if (personFields.querySelector("#eintragender").value == "") {
 		alert("The field for your identity was left empty!")
 		return;
 	}
-    let sum = 0;
-    let data = {}
-    let valuesForNext = [];
-    const persons = personFields.querySelectorAll(".person");
-    const numbers = personFields.querySelectorAll(".number");
-    for (let i = 0; i < 4; i++) {
-        let number = numbers[i].value;
-        if (number != Number(number)) {
+	let sum = 0;
+	let data = {}
+	let valuesForNext = [];
+	const persons = personFields.querySelectorAll(".person");
+	const numbers = personFields.querySelectorAll(".number");
+	for (let i = 0; i < 4; i++) {
+		let number = numbers[i].value;
+		if (number != Number(number)) {
 			alert(`Invalid input for player ${persons[i].value} (Not a Number)!`);
 			return;
 		}
@@ -153,17 +153,17 @@ function addRound() {
 			alert(`The ${i+1}. field for a user was left empty`);
 			return;
 		}
-        data[persons[i].value] = Number(number);
-        valuesForNext.push(persons[i].value);
-        sum += Number(number);
-    }
-    valuesForNext.push(personFields.querySelector("#eintragender").value);
-    localStorage.setItem("lastPlayers", JSON.stringify(valuesForNext));
-    if (Object.keys(data).length != 4) {
+		data[persons[i].value] = Number(number);
+		valuesForNext.push(persons[i].value);
+		sum += Number(number);
+	}
+	valuesForNext.push(personFields.querySelector("#eintragender").value);
+	localStorage.setItem("lastPlayers", JSON.stringify(valuesForNext));
+	if (Object.keys(data).length != 4) {
 		alert("Not enough players were listed!");
 		return;
 	}
-    if (sum !== 0) {
+	if (sum !== 0) {
 		alert("The values don't add up to 0!");
 		return;
 	}
@@ -171,296 +171,299 @@ function addRound() {
 
 	document.getElementById("addRoundBtn").disabled = true;
 
-    fetch(server+"/functions/v1/addRound", {
-        method: "POST",
-        body: JSON.stringify({
-            points: data,
-            eintraeger: personFields.querySelector("#eintragender").value,
-            bock: personFields.querySelector("#bock").checked
-        }),
-        headers: {
-            "Content-Type": "application/json; charset=UTF-8"
-        }
-    })
-        .then((response) => response.json())
-        .then((json) => {
-            if (json.success) {
-                document.location.href = ".."
-                potIncreaseCycleIndex();
-            } else console.error(json.message);
-        });
+	fetch(server+"/functions/v1/addRound", {
+		method: "POST",
+		body: JSON.stringify({
+			points: data,
+			eintraeger: personFields.querySelector("#eintragender").value,
+			bock: personFields.querySelector("#bock").checked
+		}),
+		headers: {
+			"Content-Type": "application/json; charset=UTF-8"
+		}
+	})
+		.then((response) => response.json())
+		.then((json) => {
+			if (json.success) {
+				document.location.href = ".."
+				potIncreaseCycleIndex();
+			} else console.error(json.message);
+		});
 }
 function getAddUsers() {
-    fetch(server+"/functions/v1/getUsers", {
-        method: "GET",
-    })
-        .then((response) => response.json())
-        .then((json) => {
-            if (json.success) {
+	fetch(server+"/functions/v1/getUsers", {
+		method: "GET",
+	})
+		.then((response) => response.json())
+		.then((json) => {
+			if (json.success) {
 				document.getElementById("addRound").innerHTML = `<h2>Round no ${json.roundData.id} with ${json.roundData.bock} Bock</h2>` + document.getElementById("addRound").innerHTML
-                const personFields = document.getElementById("personFields");
-                let persons = [];
+				const personFields = document.getElementById("personFields");
+				let persons = [];
 				json.users.sort((a,b) => a.name.localeCompare(b.name))
-                for (let user of json.users) {
-                    persons.push(user.name);
-                }
-                for (let i = 0; i < 4; i++) {
-                    let div = document.createElement("div");
-                    div.innerHTML = `
-                        <select class='person'>
-                            ${persons.map(person => `<option value="${person}">${person}</option>`).join("")}
-                        </select>
-                        <input ${navigator.userAgent.match(/iPhone|iPod|iPad/i) ? 'type="number"' : 'type="text"'} class="number" placeholder="Enter points" required>
-                    `;
-                    personFields.appendChild(div);
-                }
-                personFields.innerHTML += `
-                <br>
-                <label>You: </label>
-                <select id="eintragender">
-                            ${persons.map(person => `<option value="${person}">${person}</option>`).join("")}
-                </select>
-                <br>
-                <br>
-                <label>New Bocks? </label>
-                <input type="checkbox" id="bock">
-                <br>
+				for (let user of json.users) {
+					persons.push(user.name);
+				}
+				for (let i = 0; i < 4; i++) {
+					let div = document.createElement("div");
+					div.innerHTML = `
+						<select class='person'>
+							${persons.map(person => `<option value="${person}">${person}</option>`).join("")}
+						</select>
+						<input ${navigator.userAgent.match(/iPhone|iPod|iPad/i) ? 'type="number"' : 'type="text"'} class="number" placeholder="Enter points" required>
+					`;
+					personFields.appendChild(div);
+				}
+				personFields.innerHTML += `
+				<br>
+				<label>You: </label>
+				<select id="eintragender">
+							${persons.map(person => `<option value="${person}">${person}</option>`).join("")}
+				</select>
+				<br>
+				<br>
+				<label>New Bocks? </label>
+				<input type="checkbox" id="bock">
+				<br>
 
-                <button id="addRoundBtn" onclick="addRound()">Add Round</button>
+				<button id="addRoundBtn" onclick="addRound()">Add Round</button>
 
-                `;
-                const lastValues = localStorage.getItem("lastPlayers") ? JSON.parse(localStorage.getItem("lastPlayers")) : [" ", " ", " ", " ", " "];
-                for (let i = 0; i < personFields.querySelectorAll("select").length; i++) {
-                    personFields.querySelectorAll("select")[i].value = lastValues[i];
-                }
-                document.querySelector("#cycle").innerHTML += `<select id="nextAdded">
-                            ${persons.map(person => `<option value="${person}">${person}</option>`).join("")}
-                </select>
-                <button id="addCycleMember" onclick="addCycleMember()">Add Cycle Member</button>
-                `;
-                document.getElementById("addRound").style.display = "block";
+				`;
+				const lastValues = localStorage.getItem("lastPlayers") ? JSON.parse(localStorage.getItem("lastPlayers")) : [" ", " ", " ", " ", " "];
+				for (let i = 0; i < personFields.querySelectorAll("select").length; i++) {
+					personFields.querySelectorAll("select")[i].value = lastValues[i];
+				}
+				document.querySelector("#cycle").innerHTML += `<select id="nextAdded">
+							${persons.map(person => `<option value="${person}">${person}</option>`).join("")}
+				</select>
+				<button id="addCycleMember" onclick="addCycleMember()">Add Cycle Member</button>
+				`;
+				document.getElementById("addRound").style.display = "block";
 
-                cycleStuffOnLoad();
+				cycleStuffOnLoad();
 
 
-            } else console.error(json.message);
-        });
+			} else console.error(json.message);
+		});
 }
 
 function cycleStuffOnLoad() {
-    if (!localStorage.getItem("cycleMembers")) {
-        localStorage.setItem("cycleMembers", "[]");
-    }
-    let mems = JSON.parse(localStorage.getItem("cycleMembers"));
-    document.querySelector("#cycleMembers").innerHTML = "";
-    for (let i of mems) {
-        document.querySelector("#cycleMembers").innerHTML += `<a onclick="removeCycleMember('${i}')"> ${i} </a>`;
-    }
-    document.getElementById("doCycle").checked = localStorage.getItem("doCycle") == "true";
-    if (localStorage.getItem("doCycle") == "true") {
-        loadCurrentCycle();
-    }
+	if (!localStorage.getItem("cycleMembers")) {
+		localStorage.setItem("cycleMembers", "[]");
+	}
+	let mems = JSON.parse(localStorage.getItem("cycleMembers"));
+	document.querySelector("#cycleMembers").innerHTML = "";
+	for (let i of mems) {
+		document.querySelector("#cycleMembers").innerHTML += `<a onclick="removeCycleMember('${i}')"> ${i} </a>`;
+	}
+	document.getElementById("doCycle").checked = localStorage.getItem("doCycle") == "true";
+	if (localStorage.getItem("doCycle") == "true") {
+		loadCurrentCycle();
+	}
 }
 
 function potIncreaseCycleIndex() {
-    if (localStorage.getItem("doCycle") == "true") {
-        if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN") {
-            localStorage.setItem("cycleIndex", 0);
-        }
-        localStorage.setItem("cycleIndex", Number.parseInt(localStorage.getItem("cycleIndex"))+1);
-    }
+	if (localStorage.getItem("doCycle") == "true") {
+		if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN") {
+			localStorage.setItem("cycleIndex", 0);
+		}
+		localStorage.setItem("cycleIndex", Number.parseInt(localStorage.getItem("cycleIndex"))+1);
+	}
 }
 
 function loadCurrentCycle() {
-    if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN") {
-        localStorage.setItem("cycleIndex", 0);
-    }
-    const ind = Number.parseInt(localStorage.getItem("cycleIndex"));
-    const personFields = document.getElementById("personFields");
-    const mems = JSON.parse(localStorage.getItem("cycleMembers"));
-    for (let i = 0; i < 4; i++) {
-        personFields.querySelectorAll("select")[i].value = mems[(i+ind)%mems.length];
-    }
+	if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN") {
+		localStorage.setItem("cycleIndex", 0);
+	}
+	const ind = Number.parseInt(localStorage.getItem("cycleIndex"));
+	const personFields = document.getElementById("personFields");
+	const mems = JSON.parse(localStorage.getItem("cycleMembers"));
+	for (let i = 0; i < 4; i++) {
+		personFields.querySelectorAll("select")[i].value = mems[(i+ind)%mems.length];
+	}
 }
 
 function setDoCylce() {
-    localStorage.setItem("doCycle", document.getElementById("doCycle").checked);
-    if (document.getElementById("doCycle").checked)
-        loadCurrentCycle();
+	localStorage.setItem("doCycle", document.getElementById("doCycle").checked);
+	if (document.getElementById("doCycle").checked)
+		loadCurrentCycle();
 }
 
 function addCycleMember() {
-    if (!localStorage.getItem("cycleMembers")) {
-        localStorage.setItem("cycleMembers", "[]");
-    }
-    let mems = JSON.parse(localStorage.getItem("cycleMembers"));
-    if (mems.includes(document.getElementById("nextAdded").value))
-        return;
-    if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN")
-        localStorage.setItem("cycleIndex", 0);
-    localStorage.setItem("cycleIndex", localStorage.getItem("cycleIndex")%mems.length);
-    mems.push(document.getElementById("nextAdded").value);
-    localStorage.setItem("cycleMembers", JSON.stringify(mems));
-    cycleStuffOnLoad();
+	if (!localStorage.getItem("cycleMembers")) {
+		localStorage.setItem("cycleMembers", "[]");
+	}
+	let mems = JSON.parse(localStorage.getItem("cycleMembers"));
+	if (mems.includes(document.getElementById("nextAdded").value))
+		return;
+	if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN")
+		localStorage.setItem("cycleIndex", 0);
+	localStorage.setItem("cycleIndex", localStorage.getItem("cycleIndex")%mems.length);
+	mems.push(document.getElementById("nextAdded").value);
+	localStorage.setItem("cycleMembers", JSON.stringify(mems));
+	cycleStuffOnLoad();
 }
 
 function removeCycleMember(member) {
-    let mems = JSON.parse(localStorage.getItem("cycleMembers"));
-    if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN")
-        localStorage.setItem("cycleIndex", 0);
-    const starter = mems[localStorage.getItem("cycleIndex")%mems.length];
-    mems = mems.filter(m => m != member);
-    localStorage.setItem("cycleMembers", JSON.stringify(mems));
-    if (mems.indexOf(starter) != -1)
-        localStorage.setItem("cycleIndex", mems.indexOf(starter));
-    cycleStuffOnLoad();
+	let mems = JSON.parse(localStorage.getItem("cycleMembers"));
+	if (localStorage.getItem("cycleIndex") === null || localStorage.getItem("cycleIndex") == "NaN")
+		localStorage.setItem("cycleIndex", 0);
+	const starter = mems[localStorage.getItem("cycleIndex")%mems.length];
+	mems = mems.filter(m => m != member);
+	localStorage.setItem("cycleMembers", JSON.stringify(mems));
+	if (mems.indexOf(starter) != -1)
+		localStorage.setItem("cycleIndex", mems.indexOf(starter));
+	cycleStuffOnLoad();
 
 }
 
 class BarChart {
-    constructor (title, data, imgElem, isPercentage) {
-        this.title = title;
-        this.data = data;
+	constructor (title, data, imgElem, isPercentage) {
+		this.title = title;
+		this.data = data;
 		this.imgElem = imgElem;
-        this.ctx = hCtx;//canvas.getContext("2d");
-        this.canvas = hCanv;//canvas;
-        this.isPercentage = isPercentage;
-		if (typeof OffscreenCanvas !== 'undefined' && window.Worker && false) {
-			const worker = new Worker('../chartWorker.js');
-			worker.postMessage({data, isPercentage});
-			worker.onmessage = (e) => {
-				this.imgElem.src = e.data;
-				worker.terminate();
+		this.ctx = hCtx;//canvas.getContext("2d");
+		this.canvas = hCanv;//canvas;
+		this.isPercentage = isPercentage;
+		this.draw();
+	}
+	draw() {
+		this.imgElem.innerHTML = "";
+		const data = this.data;
+		const width = 450;
+		const height = 300;
+
+		let maxVal = Math.max(...Object.values(data));
+		if (maxVal == 0)
+			maxVal = 1;     //to not divide by zero
+		const minVal = Math.min(...Object.values(data), 0);	//wanted to make avg win/lose points in one plot -> negative values
+																	//and total points ofc
+		const barWidth = (width - 20) / (Object.keys(data).length);
+		const scaleFactor = (height * 0.9 - 4 - height/25) / (maxVal - minVal);
+		const zeroPoint = Math.max(25,height * 0.9 + minVal * scaleFactor);
+
+
+		for (let i = 0; i < Object.keys(data).length; i++) {
+			const key = Object.keys(data).sort()[i];
+			const val = data[key];
+			const x = 20 + i * barWidth;
+			const height = val * scaleFactor;
+			const y = height > 0 ? zeroPoint - height : zeroPoint;
+
+			this.imgElem.innerHTML += `<rect x="${x}" y="${y}" width="${barWidth/1.5}" height="${Math.abs(height)}" fill="white"/>`;
+
+			let valText = "" + Math.round(val*100)/100;
+			if (this.isPercentage) {
+				valText = "" + Math.round(val*100) + "%";
 			}
-		} else this.draw();
-    }
-    draw() {
-        const data = this.data;
-        const width = 450;
-        const height = 300;
-
-        let maxVal = Math.max(...Object.values(data));
-        if (maxVal == 0)
-            maxVal = 1;     //to not divide by zero
-        const minVal = Math.min(...Object.values(data), 0);	//wanted to make avg win/lose points in one plot -> negative values
-                                                                    //and total points ofc
-        const barWidth = (width - 20) / (Object.keys(data).length);
-        const scaleFactor = (height * 0.9 - 4 - height/25) / (maxVal - minVal);
-        const zeroPoint = Math.max(25,height * 0.9 + minVal * scaleFactor);
-
-
-        for (let i = 0; i < Object.keys(data).length; i++) {
-            const key = Object.keys(data).sort()[i];
-            const val = data[key];
-            const x = 20 + i * barWidth;
-            const height = val * scaleFactor;
-            const y = height > 0 ? zeroPoint - height : zeroPoint;
-
-            this.imgElem.innerHTML += `<rect x="${x}" y="${y}" width="${barWidth/1.5}" height="${Math.abs(height)}" fill="white"/>`;
-
-            let valText = "" + Math.round(val*100)/100;
-            if (this.isPercentage) {
-                valText = "" + Math.round(val*100) + "%";
-            }
-            if (val < 0) {
-                this.imgElem.innerHTML += `<text font-size="13" x="${x}" y="${zeroPoint - height + 15}" fill="white">${valText}</text>`;
-                this.imgElem.innerHTML += `<text font-size="18" x="${x}" y="${zeroPoint - 4}" fill="white">${key.slice(0,2)}</text>`;
-            } else {
-                this.imgElem.innerHTML += `<text font-size="13" x="${x}" y="${zeroPoint - height - 4}" fill="white">${valText}</text>`;
-                this.imgElem.innerHTML += `<text font-size="18" x="${x}" y="${zeroPoint + 15}" fill="white">${key.slice(0,2)}</text>`;
-            }
-        }
-    }
+			if (val < 0) {
+				this.imgElem.innerHTML += `<text font-size="13" x="${x}" y="${zeroPoint - height + 15}" fill="white">${valText}</text>`;
+				this.imgElem.innerHTML += `<text font-size="18" x="${x}" y="${zeroPoint - 4}" fill="white">${key.slice(0,2)}</text>`;
+			} else {
+				this.imgElem.innerHTML += `<text font-size="13" x="${x}" y="${zeroPoint - height - 4}" fill="white">${valText}</text>`;
+				this.imgElem.innerHTML += `<text font-size="18" x="${x}" y="${zeroPoint + 15}" fill="white">${key.slice(0,2)}</text>`;
+			}
+		}
+	}
 }
 
 function getDistinctColors(n) {
-    const colors = [];
-    const hueStep = 360 / n;
-    
-    for (let i = 0; i < n; i++) {
-      const hue = i * hueStep;
-      const color = `hsl(${hue}, 100%, 50%)`;
-      colors.push(color);
-    }
-    return colors;
+	const colors = [];
+	const hueStep = 360 / n;
+	
+	for (let i = 0; i < n; i++) {
+	  const hue = i * hueStep;
+	  const color = `hsl(${hue}, 100%, 50%)`;
+	  colors.push(color);
+	}
+	return colors;
   }
 
 
 let graphEventListeners = [];
 
 class Graph {
-    constructor (title, data, div) {
-        this.title = title;
-        this.data = data;
+	constructor (title, data, div) {
+		this.title = title;
+		this.data = data;
 		this.canvas = document.createElement("canvas");
 		this.canvas.height = 600;
 		this.canvas.width = 900;
 		this.div = div;
 		div.innerHTML = "";
 		div.appendChild(this.canvas);
-        this.ctx = this.canvas.getContext("2d");
+		this.ctx = this.canvas.getContext("2d");
 		div.className = "graph";
 		this.imgElem = document.createElement('img');
 		this.canvas.parentNode.insertBefore(this.imgElem, this.canvas);
 		this.colors = getDistinctColors(Object.keys(this.data).length);
 		this.maxVal = 0;
-        this.minVal = 0;
-        this.length = 0;
-        for (let i = 0; i < Object.keys(this.data).length; i++) {
-            const cur = this.data[Object.keys(this.data)[i]];
-            for (let j = 0; j < cur.length; j++) {
-                if (cur[j][1] > this.maxVal) {
-                    this.maxVal = cur[j][1];
-                }
-                if (cur[j][1] < this.minVal) {
-                    this.minVal = cur[j][1];
-                }
-            }
-            if (cur.length > 0 && cur[cur.length-1][0] > this.length) {
-                this.length = cur[cur.length-1][0];
-            }
-        }
+		this.minVal = 0;
+		this.length = 0;
+		for (let i = 0; i < Object.keys(this.data).length; i++) {
+			const cur = this.data[Object.keys(this.data)[i]];
+			for (let j = 0; j < cur.length; j++) {
+				if (cur[j][1] > this.maxVal) {
+					this.maxVal = cur[j][1];
+				}
+				if (cur[j][1] < this.minVal) {
+					this.minVal = cur[j][1];
+				}
+			}
+			if (cur.length > 0 && cur[cur.length-1][0] > this.length) {
+				this.length = cur[cur.length-1][0];
+			}
+		}
 		if (this.maxVal == 0)
-            this.maxVal = 1;
+			this.maxVal = 1;
 
-        this.draw();
-        this.div.onclick = event => {
-            if (event.detail == 2) {
+		this.draw();
+		this.div.onclick = event => {
+			if (event.detail == 2) {
 				if (document.fullscreenElement) {
 					document.exitFullscreen();
 				} else {
 					this.div.requestFullscreen();
 				}
-            }
-        }
-		this.canvas.addEventListener("mousemove", (event) => {
-			this.ctx.font = `${this.canvas.height/20}px Arial`;
-			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-			const scaleFactorY = (this.canvas.height * 0.9 - 20) / (this.maxVal - this.minVal);
-			const scaleFactorX = (this.canvas.width * 0.9 - 20) / this.length;
-			const zeroPointY = this.canvas.height * 0.9 + this.minVal * scaleFactorY;
-			const round = Math.min(Math.round(event.offsetX*this.canvas.width/this.canvas.offsetWidth/scaleFactorX), this.length);
-			const mX = round*scaleFactorX;
-			this.ctx.fillStyle = "white";
-			this.ctx.fillRect(mX-this.canvas.height/400, 0, this.canvas.height/200, this.canvas.height-this.canvas.height/20);
-			this.ctx.fillText(round, mX-this.canvas.height/40, this.canvas.height);
-			for (let i = 0; i < Object.keys(this.data).length; i++) {
-				const closest = this.data[Object.keys(this.data)[i]].reduce((prev, curr) => {
-					return Math.abs(curr[0] - round) < Math.abs(prev[0] - round) ? curr : prev;
-				});
-				this.ctx.fillStyle = this.colors[i];
-				this.ctx.fillRect(mX-this.canvas.height/100, zeroPointY-closest[1]*scaleFactorY-this.canvas.height/100, this.canvas.height/50, this.canvas.height/50)
-				this.ctx.fillText(Math.round(closest[1]*10)/10, mX+this.canvas.height/40, zeroPointY-closest[1]*scaleFactorY+this.canvas.height/40);
-
 			}
+		}
 
-		})
-		this.canvas.addEventListener("mouseout", () => this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height));
+		this.canvas.addEventListener("pointermove", (event) => this.drawOverlay(event.offsetX));
+		this.canvas.addEventListener("pointerdown", (event) => {
+			const rect = this.canvas.getBoundingClientRect();
+			const x = event.clientX - rect.left;
+			const y = event.clientY - rect.top;
+
+			this.drawOverlay(x, y);
+		});
+		this.canvas.addEventListener("pointerleave", () => this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height));
 
 		this._boundFsChange = this.fschange.bind(this);
-        document.addEventListener('fullscreenchange', this._boundFsChange);
+		document.addEventListener('fullscreenchange', this._boundFsChange);
 		graphEventListeners.push(this._boundFsChange);
-    }
+	}
+	drawOverlay(x) {
+		this.ctx.font = `${this.canvas.height/20}px Arial`;
+		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+		const scaleFactorY = (this.canvas.height * 0.9 - 20) / (this.maxVal - this.minVal);
+		const scaleFactorX = (this.canvas.width * 0.9 - 20) / this.length;
+		const zeroPointY = this.canvas.height * 0.9 + this.minVal * scaleFactorY;
+		const round = Math.min(Math.round(x*this.canvas.width/this.canvas.offsetWidth/scaleFactorX), this.length);
+		const mX = round*scaleFactorX;
+		this.ctx.fillStyle = "white";
+		this.ctx.fillRect(mX-this.canvas.height/400, 0, this.canvas.height/200, this.canvas.height-this.canvas.height/20);
+		this.ctx.fillText(round, mX-this.canvas.height/40, this.canvas.height);
+		for (let i = 0; i < Object.keys(this.data).length; i++) {
+			const closest = this.data[Object.keys(this.data)[i]].reduce((prev, curr) => {
+				return Math.abs(curr[0] - round) < Math.abs(prev[0] - round) ? curr : prev;
+			});
+			this.ctx.fillStyle = this.colors[i];
+			this.ctx.fillRect(mX-this.canvas.height/100, zeroPointY-closest[1]*scaleFactorY-this.canvas.height/100, this.canvas.height/50, this.canvas.height/50)
+			this.ctx.fillText(Math.round(closest[1]*10)/10, mX+this.canvas.height/40, zeroPointY-closest[1]*scaleFactorY+this.canvas.height/40);
+
+		}
+
+	}
 	fschange() {
 		const w = 900;
 		const h = 600;
@@ -480,64 +483,64 @@ class Graph {
 			}
 		}
 	}
-    draw() {
+	draw() {
 		if (typeof OffscreenCanvas !== 'undefined' && window.Worker) {
 			const worker = new Worker('../graphWorker.js');
 			worker.postMessage({data: this.data, w: hCanv.width, h: hCanv.height,
-                 diff: this.maxVal-this.minVal, colors: this.colors, length: this.length,
-                  minVal: this.minVal, smoothness: localStorage.getItem("smoothness") ? localStorage.getItem("smoothness") : 1000});
+				 diff: this.maxVal-this.minVal, colors: this.colors, length: this.length,
+				  minVal: this.minVal, smoothness: localStorage.getItem("smoothness") ? localStorage.getItem("smoothness") : 1000});
 			worker.onmessage = (e) => {
 				this.imgElem.src = e.data;
 				worker.terminate();
 			}
 		} else {
-            const data = this.data;
+			const data = this.data;
 
-            const width = hCanv.width;
-            const height = hCanv.height;
-            const scaleFactorY = (height * 0.9 - 20) / (this.maxVal-this.minVal);
-            const scaleFactorX = (width * 0.9 - 20) / this.length;
-            const zeroPointY = height * 0.9 + this.minVal * scaleFactorY;
-            const smoothness = localStorage.getItem("smoothness") ? localStorage.getItem("smoothness") : 1000;
+			const width = hCanv.width;
+			const height = hCanv.height;
+			const scaleFactorY = (height * 0.9 - 20) / (this.maxVal-this.minVal);
+			const scaleFactorX = (width * 0.9 - 20) / this.length;
+			const zeroPointY = height * 0.9 + this.minVal * scaleFactorY;
+			const smoothness = localStorage.getItem("smoothness") ? localStorage.getItem("smoothness") : 1000;
 
-            let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" font-family="Arial" font-size="${height / 20}">`;
+			let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" font-family="Arial" font-size="${height / 20}">`;
 
-            for (let i = 0; i < Object.keys(data).length; i++) {
-                const key = Object.keys(data).sort()[i];
-                const val = data[key];
+			for (let i = 0; i < Object.keys(data).length; i++) {
+				const key = Object.keys(data).sort()[i];
+				const val = data[key];
 
-                let pathData = "";
-                let tVal;
+				let pathData = "";
+				let tVal;
 
-                for (let j = 0; j < val.length; j+=Math.ceil(val.length/smoothness)) {
-                    if (j != 0 && val[j-1][0] != val[j][0]-1) {	
-                        tVal = val[j-1];
-                        pathData += `L${(val[j][0]-1)*scaleFactorX},${zeroPointY - tVal[1]*scaleFactorY}`;
-                    }
-                    tVal = val[j];
-                    pathData += (j === 0 ? "M" : "L") + `${tVal[0]*scaleFactorX},${zeroPointY - tVal[1]*scaleFactorY}`;
-                }
-                tVal = val[val.length-1]
-                pathData += `L${data.length * scaleFactorX},${zeroPointY - tVal[1] * scaleFactorY}`;
+				for (let j = 0; j < val.length; j+=Math.ceil(val.length/smoothness)) {
+					if (j != 0 && val[j-1][0] != val[j][0]-1) {	
+						tVal = val[j-1];
+						pathData += `L${(val[j][0]-1)*scaleFactorX},${zeroPointY - tVal[1]*scaleFactorY}`;
+					}
+					tVal = val[j];
+					pathData += (j === 0 ? "M" : "L") + `${tVal[0]*scaleFactorX},${zeroPointY - tVal[1]*scaleFactorY}`;
+				}
+				tVal = val[val.length-1]
+				pathData += `L${data.length * scaleFactorX},${zeroPointY - tVal[1] * scaleFactorY}`;
 
-                svg += `
-                    <path d="${pathData}" fill="none" stroke="${this.colors[i]}" stroke-width="${height / 300}"/>
-                    <text x="${this.length * scaleFactorX}" y="${zeroPointY - tVal[1] * scaleFactorY + height / 60}" fill="${this.colors[i]}">
-                        ${key.slice(0, 2)}
-                    </text>
-                `;
+				svg += `
+					<path d="${pathData}" fill="none" stroke="${this.colors[i]}" stroke-width="${height / 300}"/>
+					<text x="${this.length * scaleFactorX}" y="${zeroPointY - tVal[1] * scaleFactorY + height / 60}" fill="${this.colors[i]}">
+						${key.slice(0, 2)}
+					</text>
+				`;
 
-            }
-            
-            svg += "</svg>";
+			}
+			
+			svg += "</svg>";
 
-            const blob = new Blob([svg], { type: "image/svg+xml" });
-            const url = URL.createObjectURL(blob);
-            this.imgElem.src = url;
-            console.log(url)
+			const blob = new Blob([svg], { type: "image/svg+xml" });
+			const url = URL.createObjectURL(blob);
+			this.imgElem.src = url;
+			console.log(url)
 //            this.imgElem.onload = () => URL.revokeObjectURL(url);
 		}
-    }
+	}
 	delete() {
 
 	}
@@ -610,95 +613,95 @@ function showTable() {
 }
 
 function doStats(data, users) {
-    let userNames = [];
-    let participation = {};
-    let wins = {};
-    let soli = {};
-    let soliWins = {};
-    let eintragender = {};
-    let winPoints = {};
-    let losePoints = {};
-    let avgPoints = {};
-    let maxWinStreak = {};
-    let maxLoseStreak = {};
-    let loseStreak = {};
-    let winStreak = {};
-    let totalPoints = {};
-    let minPoints = {};
-    let maxPoints = {};
-    let noBockPoints = {};
-    let eloPoints = {};
-    let pointSources = {};
-    let simP = {};
-    let domP = {};
-    let individualPointHistory = {} //for graph
-    let individualPointHistory_nobock = {} //for graph
-    let individualPointHistory_elo = {} //for graph
-    let individualPointHistory_domp = {} //for graph
-    let bocks = 0.0;
+	let userNames = [];
+	let participation = {};
+	let wins = {};
+	let soli = {};
+	let soliWins = {};
+	let eintragender = {};
+	let winPoints = {};
+	let losePoints = {};
+	let avgPoints = {};
+	let maxWinStreak = {};
+	let maxLoseStreak = {};
+	let loseStreak = {};
+	let winStreak = {};
+	let totalPoints = {};
+	let minPoints = {};
+	let maxPoints = {};
+	let noBockPoints = {};
+	let eloPoints = {};
+	let pointSources = {};
+	let simP = {};
+	let domP = {};
+	let individualPointHistory = {} //for graph
+	let individualPointHistory_nobock = {} //for graph
+	let individualPointHistory_elo = {} //for graph
+	let individualPointHistory_domp = {} //for graph
+	let bocks = 0.0;
 
-    for (let user of users) {
-        userNames.push(user.name);
-        participation[user.name] = 0;
-        soli[user.name] = 0;
-        soliWins[user.name] = 0;
-        winPoints[user.name] = 0;
-        losePoints[user.name] = 0;
-        avgPoints[user.name] = 0;
-        maxWinStreak[user.name] = 0;
-        maxLoseStreak[user.name] = 0;
-        winStreak[user.name] = 0;
-        loseStreak[user.name] = 0;
-        wins[user.name] = 0;
-        totalPoints[user.name] = 0;
-        minPoints[user.name] = 0;
-        maxPoints[user.name] = 0;
-        noBockPoints[user.name] = 0;
-        eloPoints[user.name] = 1500;
-        pointSources[user.name] = {};
+	for (let user of users) {
+		userNames.push(user.name);
+		participation[user.name] = 0;
+		soli[user.name] = 0;
+		soliWins[user.name] = 0;
+		winPoints[user.name] = 0;
+		losePoints[user.name] = 0;
+		avgPoints[user.name] = 0;
+		maxWinStreak[user.name] = 0;
+		maxLoseStreak[user.name] = 0;
+		winStreak[user.name] = 0;
+		loseStreak[user.name] = 0;
+		wins[user.name] = 0;
+		totalPoints[user.name] = 0;
+		minPoints[user.name] = 0;
+		maxPoints[user.name] = 0;
+		noBockPoints[user.name] = 0;
+		eloPoints[user.name] = 1500;
+		pointSources[user.name] = {};
 		for (let sourceUser of users) {
 			pointSources[user.name][sourceUser.name] = 0;
 		}
-        simP[user.name] = 0;
-        domP[user.name] = 0;
-        eintragender[user.name] = 0;
-        individualPointHistory[user.name] = [[0,0]];
-        individualPointHistory_nobock[user.name] = [[0,0]];
-        individualPointHistory_elo[user.name] = [[0,0]];
-        individualPointHistory_domp[user.name] = [[0,0]];
-    }
+		simP[user.name] = 0;
+		domP[user.name] = 0;
+		eintragender[user.name] = 0;
+		individualPointHistory[user.name] = [[0,0]];
+		individualPointHistory_nobock[user.name] = [[0,0]];
+		individualPointHistory_elo[user.name] = [[0,0]];
+		individualPointHistory_domp[user.name] = [[0,0]];
+	}
 
-    let isBock = false;
+	let isBock = false;
 	let rnd = 0;
-    for (let round of data) {
+	for (let round of data) {
 		rnd++;
-        if (Object.keys(round.points).length == 0)
-            continue;
+		if (Object.keys(round.points).length == 0)
+			continue;
 
 
 
-        if (round.eintragender != null && round.eintragender != "" && round.eintragender != " ") {
-            eintragender[round.eintragender] += 1;
-        }
-        if (Number(round.bock) > 0) {
-            bocks += 1.0;
-        }
+		if (round.eintragender != null && round.eintragender != "" && round.eintragender != " ") {
+			eintragender[round.eintragender] += 1;
+		}
+		if (Number(round.bock) > 0) {
+			bocks += 1.0;
+		}
 		/*for (let player of userNames.filter(item => !Object.keys(round.points).includes(item))) {
 			individualPointHistory[player].push([rnd, individualPointHistory[player][individualPointHistory[player].length-1][1]]);
 			individualPointHistory_nobock[player].push([rnd, individualPointHistory_nobock[player][individualPointHistory_nobock[player].length-1][1]]);
 			individualPointHistory_elo[player].push([rnd, individualPointHistory_elo[player][individualPointHistory_elo[player].length-1][1]]);
 			individualPointHistory_domp[player].push([rnd, individualPointHistory_domp[player][individualPointHistory_domp[player].length-1][1]]);
 		}*/
-        for (let i = 0; i < Object.keys(round.points).length; i++) {
+		for (let i = 0; i < Object.keys(round.points).length; i++) {
 			let player = Object.keys(round.points)[i];
 			let nb;
 			if (isBock) {
-                nb = round.points[player]/2;
-            } else {
-                nb = round.points[player];
-            }
-            participation[player] += 1;
-            totalPoints[player] += round.points[player];
+				nb = round.points[player]/2;
+			} else {
+				nb = round.points[player];
+			}
+			participation[player] += 1;
+			totalPoints[player] += round.points[player];
 			maxPoints[player] = Math.max(maxPoints[player], totalPoints[player]);
 			minPoints[player] = Math.min(minPoints[player], totalPoints[player]);
 
@@ -719,8 +722,8 @@ function doStats(data, users) {
 
 			eloPoints[player] += eloChange;
 
-            let oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
-            individualPointHistory[player].push([rnd, oldVal + round.points[player]]);
+			let oldVal = individualPointHistory[player][individualPointHistory[player].length-1][1];
+			individualPointHistory[player].push([rnd, oldVal + round.points[player]]);
 
 			oldVal = individualPointHistory_nobock[player][individualPointHistory_nobock[player].length-1][1];
 			individualPointHistory_nobock[player].push([rnd, oldVal + nb]);
@@ -750,22 +753,22 @@ function doStats(data, users) {
 			domP[player] += domPCha;
 			
 
-            if (round.points[player] > 0) {
-                wins[player] += 1;
-                winPoints[player] += round.points[player];
-                winStreak[player]++;
-                maxWinStreak[player] = Math.max(maxWinStreak[player], winStreak[player]);
-                loseStreak[player] = 0;
-            } else if (round.points[player] < 0) {
-                losePoints[player] -= round.points[player];
-                winStreak[player] = 0;
-                loseStreak[player]++;
-                maxLoseStreak[player] = Math.max(maxLoseStreak[player], loseStreak[player]);
-            } else {
-                winStreak[player] = 0;
-                loseStreak[player] = 0;
-            }
-            avgPoints[player] += round.points[player];
+			if (round.points[player] > 0) {
+				wins[player] += 1;
+				winPoints[player] += round.points[player];
+				winStreak[player]++;
+				maxWinStreak[player] = Math.max(maxWinStreak[player], winStreak[player]);
+				loseStreak[player] = 0;
+			} else if (round.points[player] < 0) {
+				losePoints[player] -= round.points[player];
+				winStreak[player] = 0;
+				loseStreak[player]++;
+				maxLoseStreak[player] = Math.max(maxLoseStreak[player], loseStreak[player]);
+			} else {
+				winStreak[player] = 0;
+				loseStreak[player] = 0;
+			}
+			avgPoints[player] += round.points[player];
 
 			for (let sourcePlayer of Object.keys(round.points)) {
 				const src = round.points[sourcePlayer];
@@ -778,63 +781,63 @@ function doStats(data, users) {
 					pointSources[player][sourcePlayer] += dest/3;		//solo player
 				}
 			}
-        }
+		}
 
-        //prob overly complicated but whatever
-        const count = {};
-        for (let num of Object.values(round.points)) {
-            count[num] = (count[num] || 0) + 1;
-        }
-        if (Object.values(count)[0] == 3) {
-            for (let player of Object.keys(round.points)) {
-                if (round.points[player] == Number(Object.keys(count)[1])) {
-                    soli[player] += 1;
-                    if (round.points[player] > 0) {
-                        soliWins[player] += 1;
-                    }
-                }
-            }
-            
-        } else if (Object.values(count)[1] == 3) {
-            for (let player of Object.keys(round.points)) {
-                if (round.points[player] == Number(Object.keys(count)[0])) {
-                    soli[player] += 1;
-                    if (round.points[player] > 0) {
-                        soliWins[player] += 1;
-                    }
-                }
-            }
-        }
-        if (round.bock > 0) {
-            isBock = true;
-        } else {
-            isBock = false;
-        }
+		//prob overly complicated but whatever
+		const count = {};
+		for (let num of Object.values(round.points)) {
+			count[num] = (count[num] || 0) + 1;
+		}
+		if (Object.values(count)[0] == 3) {
+			for (let player of Object.keys(round.points)) {
+				if (round.points[player] == Number(Object.keys(count)[1])) {
+					soli[player] += 1;
+					if (round.points[player] > 0) {
+						soliWins[player] += 1;
+					}
+				}
+			}
+			
+		} else if (Object.values(count)[1] == 3) {
+			for (let player of Object.keys(round.points)) {
+				if (round.points[player] == Number(Object.keys(count)[0])) {
+					soli[player] += 1;
+					if (round.points[player] > 0) {
+						soliWins[player] += 1;
+					}
+				}
+			}
+		}
+		if (round.bock > 0) {
+			isBock = true;
+		} else {
+			isBock = false;
+		}
 
-    }
-    for (let user of userNames) {
-        if (data.length > 0) {
-            if (participation[user] > 0) {
-                if (wins[user] > 0) {
-                    winPoints[user] /= wins[user];
-                }
-                if (participation[user] - wins[user] > 0) { //technically inaccurate beacuse of round with 0 points but whatever
-                    losePoints[user] /= participation[user] - wins[user];
-                }
-                avgPoints[user] /= participation[user];
-                if (soli[user] > 0) {
-                    soliWins[user] /= soli[user];
-                }
-                wins[user] /= participation[user];
-                soli[user] /= participation[user];
-                
-            }
-            participation[user] /= data.length;
-            eintragender[user] /= data.length;
-            
-        }
+	}
+	for (let user of userNames) {
+		if (data.length > 0) {
+			if (participation[user] > 0) {
+				if (wins[user] > 0) {
+					winPoints[user] /= wins[user];
+				}
+				if (participation[user] - wins[user] > 0) { //technically inaccurate beacuse of round with 0 points but whatever
+					losePoints[user] /= participation[user] - wins[user];
+				}
+				avgPoints[user] /= participation[user];
+				if (soli[user] > 0) {
+					soliWins[user] /= soli[user];
+				}
+				wins[user] /= participation[user];
+				soli[user] /= participation[user];
+				
+			}
+			participation[user] /= data.length;
+			eintragender[user] /= data.length;
+			
+		}
 		domP[user] = Math.round(domP[user]);
-    }
+	}
 	for (let criteria of [wins, totalPoints, maxPoints, minPoints, participation]) {
 		let sorted = Object.entries(criteria);
 		sorted.sort((a, b) => a[1] - b[1]);
@@ -852,37 +855,37 @@ function doStats(data, users) {
 			simP[i[0]] += points;
 		}
 	}
-    if (data.length > 0) {
-        bocks /= data.length;
-    }
+	if (data.length > 0) {
+		bocks /= data.length;
+	}
 
 	for (let list of graphEventListeners) {
 		document.removeEventListener("fullscreenchange", list);
 	}
 	graphEventListeners = [];
 
-    new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
-    new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
-    new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage 
-    new BarChart("Max Points", maxPoints, document.getElementById("maxPoints"), false);    //title, data, canvas, siPercentage 
-    new BarChart("Min Points", minPoints, document.getElementById("minPoints"), false);    //title, data, canvas, siPercentage 
-    new BarChart("Average points", avgPoints, document.getElementById("avgP"), false);    //title, data, canvas, siPercentage
-    new BarChart("Average Win points", winPoints, document.getElementById("winP"), false);    //title, data, canvas, siPercentage
-    new BarChart("Average Lose points", losePoints, document.getElementById("loseP"), false);    //title, data, canvas, siPercentage
-    new BarChart("Max Losing Streak", maxLoseStreak, document.getElementById("loseStreak"), false);    //title, data, canvas, siPercentage
-    new BarChart("Max Winning Streak", maxWinStreak, document.getElementById("winStreak"), false);    //title, data, canvas, siPercentage
-    new BarChart("Wins", wins, document.getElementById("wins"), true);    //title, data, canvas, siPercentage
-    new BarChart("Eintragender", eintragender, document.getElementById("eintragender"), true);    //title, data, canvas, siPercentage
-    new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
-    new BarChart("Soli Wins", soliWins, document.getElementById("soliWins"), true);    //title, data, canvas, siPercentage
-    new BarChart("No Bocks", noBockPoints, document.getElementById("noBock"), false);    //title, data, canvas, siPercentage
+	new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
+	new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
+	new BarChart("Participation", participation, document.getElementById("participation"), true);    //title, data, canvas, siPercentage 
+	new BarChart("Max Points", maxPoints, document.getElementById("maxPoints"), false);    //title, data, canvas, siPercentage 
+	new BarChart("Min Points", minPoints, document.getElementById("minPoints"), false);    //title, data, canvas, siPercentage 
+	new BarChart("Average points", avgPoints, document.getElementById("avgP"), false);    //title, data, canvas, siPercentage
+	new BarChart("Average Win points", winPoints, document.getElementById("winP"), false);    //title, data, canvas, siPercentage
+	new BarChart("Average Lose points", losePoints, document.getElementById("loseP"), false);    //title, data, canvas, siPercentage
+	new BarChart("Max Losing Streak", maxLoseStreak, document.getElementById("loseStreak"), false);    //title, data, canvas, siPercentage
+	new BarChart("Max Winning Streak", maxWinStreak, document.getElementById("winStreak"), false);    //title, data, canvas, siPercentage
+	new BarChart("Wins", wins, document.getElementById("wins"), true);    //title, data, canvas, siPercentage
+	new BarChart("Eintragender", eintragender, document.getElementById("eintragender"), true);    //title, data, canvas, siPercentage
+	new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
+	new BarChart("Soli Wins", soliWins, document.getElementById("soliWins"), true);    //title, data, canvas, siPercentage
+	new BarChart("No Bocks", noBockPoints, document.getElementById("noBock"), false);    //title, data, canvas, siPercentage
 	new Graph("No Bock History", individualPointHistory_nobock, document.getElementById("noBockHistory"));
 	new BarChart("ELO", eloPoints, document.getElementById("elo"), false);    //title, data, canvas, siPercentage
 	new Graph("ELO History", individualPointHistory_elo, document.getElementById("eloHistory"));
 	new BarChart("DomP", domP, document.getElementById("domp"), false);    //title, data, canvas, siPercentage
 	new Graph("DomP History", individualPointHistory_domp, document.getElementById("dompHistory"));
-    new BarChart("SimP", simP, document.getElementById("simP"), false);    //title, data, canvas, siPercentage
-    document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
+	new BarChart("SimP", simP, document.getElementById("simP"), false);    //title, data, canvas, siPercentage
+	document.getElementById("num_bocks").innerText = "" + Math.round(bocks*1000)/10 + "% of the rounds were Böckis."
 	//sources
 	document.getElementById("pointSources").innerHTML = "";
 	for (let destPlayer of Object.entries(pointSources)) {
@@ -926,18 +929,18 @@ function toggleContents() {
 }
 
 if (document.getElementById("cur")) {
-    getCurrent();
+	getCurrent();
 }
 
 if (document.getElementById("full")) {
-    getAll();
+	getAll();
 
 	document.getElementById("fromTime").onchange = showTable;
 
 	document.getElementById("toTime").onchange = showTable;
 }
 if (document.getElementById("addRound")) {
-    getAddUsers();
+	getAddUsers();
 }
 
 if (localStorage.getItem("isAdmin") && !location.pathname.includes("admin")) {
