@@ -14,7 +14,7 @@ function setAddr() {
 	<h3>Enter the start of the server address:</h3>
 	<input type="text" name="add" id="srv_addr">
 	<button onclick="localStorage.setItem('server', 'https://'+document.getElementById('srv_addr').value+'dymszuuaqyugwf.supabase.co'); window.location.reload()">Save</button>
-  </div>`
+  </div>`;
 	
 }
 
@@ -26,7 +26,7 @@ function login() {
 	<input type="text" id="login_name" placeholder="name">
 	<input type="text" id="login_pw" placeholder="password">
 	<button onclick="sendLogin()">Login</button>
-  </div>`
+  </div>`;
 }
 
 function setSmoothness() {
@@ -36,7 +36,7 @@ function setSmoothness() {
   <div class="popUp">
 	<input type="number" id="smoothnessInput" placeholder="Graph Accuracy">
 	<button onclick="localStorage.setItem('smoothness', document.getElementById('smoothnessInput').value); window.location.reload()">Set</button>
-  </div>`
+  </div>`;
 }
 
 function sendLogin() {
@@ -71,7 +71,7 @@ if (!localStorage.getItem("server")) {
 }
 const server = localStorage.getItem("server");
 if (document.getElementById("quote")) {
-	const quotes = ["Doppelkopf ist die META", "Skillissue", "Der Sinn des Lebens ist Doppelkopf", "Ein Tag ohne Doppelkopf ist ein Tag ohne Sinn", "Entweder spielt man Doppelkopf oder man sieht das eigene Leben an einem vorbeiziehen", "Oeddeloeddeldoeddel", "Das ist nen goofie Blatt", "Pik-10-Gameplay"]
+	const quotes = ["Doppelkopf ist die META", "Skillissue", "Der Sinn des Lebens ist Doppelkopf", "Ein Tag ohne Doppelkopf ist ein Tag ohne Sinn", "Entweder spielt man Doppelkopf oder man sieht das eigene Leben an einem vorbeiziehen", "Oeddeloeddeldoeddel", "Das ist nen goofie Blatt", "Pik-10-Gameplay", "Gurten + Doppelkopf"];
 	document.getElementById("quote").innerText = "„" + quotes[Math.floor(Math.random() * quotes.length)] + "“";
 }
 
@@ -135,36 +135,34 @@ function getAll() {
 function addRound() {
 	const personFields = document.getElementById("personFields");
 	if (personFields.querySelector("#eintragender").value == "") {
-		alert("The field for your identity was left empty!")
+		alert("The field for your identity was left empty!");
 		return;
 	}
-	let sum = 0;
-	let data = {}
+	if (document.getElementById("pointInput").value != Number(document.getElementById("pointInput").value)) {
+		alert("The point field doesn't contain a valid number!");
+		return;
+	}
+	let data = {};
 	let valuesForNext = [];
 	const persons = personFields.querySelectorAll(".person");
-	const numbers = personFields.querySelectorAll(".number");
+	const numbers = getPlayerPoints();
+	if (numbers === null) {
+		alert("Invalid selection!");
+		return;
+	}
 	for (let i = 0; i < 4; i++) {
-		let number = numbers[i].value;
-		if (number != Number(number)) {
-			alert(`Invalid input for player ${persons[i].value} (Not a Number)!`);
-			return;
-		}
+		let number = numbers[i];
 		if (persons[i].value == "") {
 			alert(`The ${i+1}. field for a user was left empty`);
 			return;
 		}
-		data[persons[i].value] = Number(number);
+		data[persons[i].value] = number;
 		valuesForNext.push(persons[i].value);
-		sum += Number(number);
 	}
 	valuesForNext.push(personFields.querySelector("#eintragender").value);
 	localStorage.setItem("lastPlayers", JSON.stringify(valuesForNext));
 	if (Object.keys(data).length != 4) {
 		alert("Not enough players were listed!");
-		return;
-	}
-	if (sum !== 0) {
-		alert("The values don't add up to 0!");
 		return;
 	}
 
@@ -199,6 +197,7 @@ function getAddUsers() {
 			if (json.success) {
 				document.getElementById("addRound").innerHTML = `<h2>Round no ${json.roundData.id} with ${json.roundData.bock} Bock</h2>` + document.getElementById("addRound").innerHTML
 				const personFields = document.getElementById("personFields");
+				personFields.innerHTML += `<input type="number" id="pointInput" placeholder="Enter round points" onchange="doPointPreview()">`;
 				let persons = [];
 				json.users.sort((a,b) => a.name.localeCompare(b.name))
 				for (let user of json.users) {
@@ -210,8 +209,10 @@ function getAddUsers() {
 						<select class='person'>
 							${persons.map(person => `<option value="${person}">${person}</option>`).join("")}
 						</select>
-						<input ${navigator.userAgent.match(/iPhone|iPod|iPad/i) ? 'type="number"' : 'type="text"'} class="number" placeholder="Enter points" required>
+						<input type="checkbox" onchange="doPointPreview()">
+						<label>0</label>
 					`;
+					//<input ${navigator.userAgent.match(/iPhone|iPod|iPad/i) ? 'type="number"' : 'type="text"'} class="number" placeholder="Enter points" required>
 					personFields.appendChild(div);
 				}
 				personFields.innerHTML += `
@@ -245,6 +246,40 @@ function getAddUsers() {
 
 			} else console.error(json.message);
 		});
+}
+
+function getPlayerPoints() {
+	const roundPoints = Number(document.getElementById("pointInput").value);
+	const personFieldDivs = document.getElementById("personFields").getElementsByTagName("div");
+	let nWinners = 0;
+	const points = [];
+	for (let i = 0; i < 4; i++) {
+		if (personFieldDivs[i].getElementsByTagName("input")[0].checked)
+			nWinners++;
+	}
+	if (nWinners == 0 || nWinners == 4)
+		return null;
+
+	for (let i = 0; i < 4; i++) {
+		if (personFieldDivs[i].getElementsByTagName("input")[0].checked)
+			points.push(nWinners == 1 ? 3*roundPoints : roundPoints);
+		else
+			points.push(nWinners == 3 ? -3*roundPoints : -roundPoints);
+	}
+	return points;
+}
+
+function doPointPreview() {
+	const personFieldDivs = document.getElementById("personFields").getElementsByTagName("div");
+	const pp = getPlayerPoints();
+	if (pp === null) {
+		for (let i = 0; i < 4; i++)
+			personFieldDivs[i].getElementsByTagName("label")[0].innerText = "0";
+		return;
+	}
+	for (let i = 0; i < 4; i++) {
+		personFieldDivs[i].getElementsByTagName("label")[0].innerText = pp[i];
+	}
 }
 
 function cycleStuffOnLoad() {

@@ -28,9 +28,22 @@
 	display: none;
 }
 
-#addRound input {
+#addRound #personFields div {
 	font-size: 16px;
 	margin: 3px;
+}
+
+#pointInput {
+	margin-bottom: 20px;
+}
+
+#addRound #cycle {
+	border-radius: 5px;
+	width: fit-content;
+	padding: 10px;
+    background: linear-gradient(45deg, var(--c1), var(--c2));
+    transition: --c1 0.3s, --c2 0.3s;
+	margin: 15px;
 }
 
 #addRoundBtn {
