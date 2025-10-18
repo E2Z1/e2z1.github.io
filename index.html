@@ -7,6 +7,7 @@
     <title>E2Z1' Website</title>
     <link rel="stylesheet" href="global.css">
     <link rel="icon" href="/imgs/logo.svg">
+    <script src="script.js"></script>
 </head>
 <body>
     <nav>
@@ -27,8 +28,9 @@
     <p>I'm a student doing random stuff</p>
     <p>I enjoy plain-HTML, plain-CSS and vanilla-js way too much</p>
 	<a onclick="this.innerText='Theme: '+cycleTheme()" id="theme-sel"></a>
+    <br>
+    <a style="display: block; padding: 20px; width: fit-content; background-color: var(--c1); border-radius: 5px;" onclick='if (this.innerText == 1) window.location = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; else this.innerText=Number(this.innerText)-1'>5</a>
 
-    <script src="script.js"></script>
 	<script>
 		document.getElementById("theme-sel").innerText='Theme: '+getTheme();
 	</script>

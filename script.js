@@ -1,14 +1,16 @@
+(function() {
+	if (localStorage.getItem("theme")) {
+		document.documentElement.dataset.theme = localStorage.getItem("theme");
+	}
+})();
 if (window.location.href.startsWith("http://localhost") || window.location.href.startsWith("http://127.0.0.1")) {
     document.getElementsByTagName("title")[0].innerText = "[DEV] " + document.getElementsByTagName("title")[0].innerText;
-}
-if (localStorage.getItem("theme")) {
-	document.body.setAttribute("data-theme", localStorage.getItem("theme"));
 }
 
 const themes = ["Default", "Catppuccin", "Gruvbox", "Nord", "Flashlight", "Dominic"];
 function changeTheme(theme) {
 	localStorage.setItem("theme", theme);
-	document.body.setAttribute("data-theme", theme);
+	document.documentElement.dataset.theme = theme;
 }
 
 function getTheme() {
