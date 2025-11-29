@@ -13,10 +13,11 @@ let fps = 0;
 let collidingObject;
 let scale; //height equals ppL LE
 const tps = 100;    //ticks per second
-const ppL = 300;    //Pixels per Längeneinheit
+let ppL = 300;    //Pixels per Längeneinheit
 let mouseX = 0;
 let mouseY = 0;
 let player;
+let center;
 let logicInterval;
 const interpolation = true;
 const showFps = false;
@@ -25,6 +26,8 @@ let buttons = [["a", [10, gameCanvas.height - 60]],["d", [70, gameCanvas.height 
 let gaming;
 
 let objects = [];
+let gui = [];
+let background = [];
 let entitys = [];
 let solid = [];
 let logicObjs = [];
@@ -51,12 +54,12 @@ class GameObject {
     }
     render(mx, my, scale, lastPhysics) {
         let physicsThingo = doInterpolation() ? (performance.now() - lastPhysics) / (1000/tps) : 0;
-        let addPLayerX = player.vx * physicsThingo;
-        let addPlayerY = player.vy * physicsThingo;
+        let addPLayerX = center.vx * physicsThingo;
+        let addPlayerY = center.vy * physicsThingo;
         let addX = this.vx ? this.vx * physicsThingo : 0;
         let addY = this.vy ? this.vy * physicsThingo : 0;
         ctx.fillStyle = this.color;
-        ctx.fillRect(mx + Math.floor((this.x + addX - (player.x + addPLayerX))*scale), my + Math.floor((this.y +addY - (player.y+addPlayerY))*scale), this.w * scale, this.h * scale);
+        ctx.fillRect(mx + Math.floor((this.x + addX - (center.x + addPLayerX))*scale), my + Math.floor((this.y +addY - (center.y+addPlayerY))*scale), this.w * scale, this.h * scale);
     }
 }
 
@@ -65,6 +68,7 @@ class MovableText extends GameObject {
         super(x, y, 0, 0, color);
         this.font = font;
         this.text = text;
+		background.push(this);
     }
     render(mx, my, scale, lastPhysics) {
         ctx.fillStyle = this.color;
@@ -122,7 +126,7 @@ class Spike extends GameObject {
 }
 
 class Entity extends GameObject {
-    constructor (x, y, w, h, color, slipperness, jump_accel, gravity, x_accel) {
+    constructor (x, y, w, h, color, slipperness, jump_accel, gravity, x_accel, bounce) {
         super(x,y,w,h, color);
         this.vx = 0.0;
         this.vy = 0.0;
@@ -130,6 +134,7 @@ class Entity extends GameObject {
         this.jump_accel = jump_accel;
         this.gravity = gravity;
         this.x_accel = x_accel;
+		this.bounce = bounce;
         this.ong;
         entitys.push(this);
     }
@@ -166,11 +171,11 @@ class Entity extends GameObject {
     
         if (timeX < timeY) {
             this.x += closestX;
-            this.vx = 0.0;
+            this.vx *= -this.bounce[0];
     
         } else {
             this.y += closestY;
-            this.vy = 0.0;
+            this.vy *= -this.bounce[1];
         }
     
     }
@@ -213,7 +218,8 @@ class Fist extends GameObject { //coukld also have used entity but physics is re
         this.vy = dy/velocity_scale + player.vy;
         this.initX = x;
         this.initY = y;
-        this.player = player;
+        this.start = [x,y];
+		this.player = player;
         entitys.push(this);
     }
 
@@ -227,7 +233,7 @@ class Fist extends GameObject { //coukld also have used entity but physics is re
     physics() {
         this.x += this.vx;
         this.y += this.vy;
-        if (dist(this.x, this.y, this.player.x, this.player.y) > 40) {
+        if (dist(this.x, this.y, this.start[0], this.start[1]) > 40) {
             this.die();
         }
         for (let entity of entitys) {
@@ -236,12 +242,16 @@ class Fist extends GameObject { //coukld also have used entity but physics is re
                 //this.die(); too op?
             }
         }
+		for (let elem of solid){
+            if (this !== elem && isColliding(elem, {x: this.x, y: this.y, w: this.w, h: this.h}))
+                this.die();
+        }
     }
 }
 
 class Player extends Entity {
     constructor (x, y, w, h) {
-        super(x, y, w, h, "rgb(0 255 0)", 0.95, -4, 0.07, 0.07);
+        super(x, y, w, h, "rgb(0 255 0)", 0.95, -4, 0.07, 0.07, [0, 0]);
         this.initX = x;
         this.initY = y;
         this.fist = null;
@@ -312,18 +322,41 @@ class Player extends Entity {
     }
 }
 
+function lineIntersect(x1,y1,x2,y2, x3,y3,x4,y4) {
+  const den = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
+  if (den === 0) return false;
+
+  const t = ((x1-x3)*(y3-y4) - (y1-y3)*(x3-x4)) / den;
+  const u = -((x1-x2)*(y1-y3) - (y1-y2)*(x1-x3)) / den;
+
+  return (t>=0 && t<=1 && u>=0 && u<=1);
+}
+
+function lineIntersectsRect(x1, y1, x2, y2, r) {
+  const left = lineIntersect(x1,y1,x2,y2, r.x,r.y, r.x,r.y+r.h);
+  const right = lineIntersect(x1,y1,x2,y2, r.x+r.w,r.y, r.x+r.w,r.y+r.h);
+  const top = lineIntersect(x1,y1,x2,y2, r.x,r.y, r.x+r.w,r.y);
+  const bottom = lineIntersect(x1,y1,x2,y2, r.x,r.y+r.h, r.x+r.w,r.y+r.h);
+
+  return left || right || top || bottom;
+}
+
 class daboss extends Entity {
     constructor (x, y) {
-        super(x, y, 50, 50, "rgb(200 0 0)", 0.9, -2, 0.08, 0.07);
+        super(x, y, 50, 50, "rgb(200 0 0)", 0.96, -2, 0.08, 0.07, [1, 0]);
         this.hp = 100;
         this.maxHP = 200;
+		this.lastLaser = Infinity;
         this.bar = new BossBar(this, "rgb(200 0 0)");
+		this.laser;
     }
 
     damage(vx, vy) {
+		if (this.lastLaser == Infinity)
+			this.lastLaser = performance.now();
         if (this.hp > 0) {
             super.damage(vx, vy);
-            if (this.hp-- <= 0) {
+            if (--this.hp <= 0) {
                 this.die();
             }
         }
@@ -334,17 +367,58 @@ class daboss extends Entity {
         const bar = this.bar;
         setTimeout(() => {
             bar.delete();
-        }, 5000);
+			new Spike(-240, 100);
+        }, 1000);
     }
 
     physics() {
-        super.physics();
-        if (this.ong) {
-            if (this.hp < this.maxHP)
-                this.hp++;
-            this.vy = this.jump_accel;
-        }
+		if (this.lastLaser > performance.now()-8000) {
+			super.physics();
+			if (this.ong) {
+				if (this.hp < this.maxHP)
+					this.hp++;
+				this.vy = this.jump_accel;
+			}
+		} else {
+			const lw = Math.min((performance.now()-8000-this.lastLaser)/1000, 1) * 70 + this.w/2;
+			const rot = -Math.max((performance.now()-9000-this.lastLaser)/1000, 0) * 2 * Math.PI;
+			const x1 = this.x + this.w/2;
+			const y1 = this.y + this.h/2;
+			const x2 = x1 + Math.cos(rot) * lw;
+			const y2 = y1 + Math.sin(rot) * lw;
+			if (lineIntersectsRect(x1, y1, x2, y2, player)) {
+				player.damage();
+			}
+		}
+		if (isColliding(this, player)) {
+			player.damage()
+		}
     }
+
+	render(mx, my, scale, lastPhysics) {
+		ctx.resetTransform();
+		super.render(mx, my, scale, lastPhysics);
+		if (this.lastLaser < performance.now()-8000) {
+			this.vx = 0;
+			this.vy = 0;
+			const percWidth = Math.min((performance.now()-8000-this.lastLaser)/1000, 1);
+			ctx.fillStyle = this.color;
+			ctx.shadowColor = "hsla(0, 100%, 52%, 0.80)";
+			ctx.shadowBlur = 25;
+			ctx.fillRect(mx + Math.floor((this.x + this.w - center.x)*scale), my + Math.floor((this.y + this.h/2 - 3 - center.y)*scale), percWidth * 70 * scale, 6 * scale);
+			ctx.shadowBlur = 0;
+		}
+		if (this.lastLaser < performance.now() - 9000) {
+			const percRot = Math.min((performance.now()-9000-this.lastLaser)/1000, 1);
+			ctx.translate(gameCanvas.width / 2, gameCanvas.height / 2);
+			ctx.rotate(2 * Math.PI * percRot)
+			ctx.translate(-gameCanvas.width / 2, -gameCanvas.height / 2);
+		}
+
+		if (this.lastLaser < performance.now()-10000) {
+			this.lastLaser = performance.now();
+		}
+	}
 }
 
 class BossBar {
@@ -352,10 +426,13 @@ class BossBar {
         this.boss = boss;
         this.color = color;
         objects.push(this);
+		gui.push(this);
     }
     delete() {
         if (objects.findIndex(object => object == this) != -1)
             objects.splice(objects.findIndex(object => object == this), 1);
+        if (gui.findIndex(object => object == this) != -1)
+            gui.splice(gui.findIndex(object => object == this), 1);
     }
     render() {
         ctx.fillStyle = "rgb(200 200 200)";
@@ -372,6 +449,7 @@ function loadLevel(lvl) {
     spikes = [];
     logicObjs = [];
     solid = [];
+	gui = [];
     switch (lvl) {
         case 0:
             new Ground(-100, 0, 130, 10);
@@ -397,7 +475,8 @@ function loadLevel(lvl) {
             new Ground(125, 60, 40, 10);
             new Ground(75, 50, 30, 10);
             new Ground(40, 50, 10, 135);
-            new Ground(-300, 50, 10, 135);
+            new Ground(-300, -80, 10, 265);
+            new Ground(-290, -80, 190, 10);
             new Ground(-290, 175, 330, 10);
             new Ground(-100, -80, 10, 80);
 
@@ -491,22 +570,42 @@ function logic() {
 
 function render() {
     scale = Math.floor(window.innerHeight/ppL); //pixels per Längeneinheit
-    if (!edit) {
-        mx = Math.floor(gameCanvas.width/2-scale*player.w/2);
-        my = Math.floor(gameCanvas.height/2-scale*player.h/2);
-    }
+	center = player;
+
     ctx.fillStyle = "rgb(36 0 120)";
     ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+	for (let e of entitys) {
+		if (e instanceof daboss && e.lastLaser < performance.now()-8000) {
+			center = e;
+		}
+		if (e instanceof daboss && e.lastLaser < performance.now()-9000) {
+			const percRot = Math.min((performance.now()-9000-e.lastLaser)/1000, 1);
+			ctx.translate(gameCanvas.width / 2, gameCanvas.height / 2);
+			ctx.rotate(2 * Math.PI * percRot)
+			ctx.translate(-gameCanvas.width / 2, -gameCanvas.height / 2);
+		}
+	}
+    if (!edit) {
+        mx = Math.floor(gameCanvas.width/2-scale*center.w/2);
+        my = Math.floor(gameCanvas.height/2-scale*center.h/2);
+    }
     if (showFps) {
         ctx.fillStyle = "rgb(255 255 255)";
         ctx.font = "100px Arial";
         ctx.fillText(fps.toString()+" FPS", 80,80);
     }
 
+	for (let objs of [background, solid, spikes, logicObjs, entitys])
+		for (let object of objs) {
+			object.render(mx, my, scale, lastPhysics);
+		}
 
-    for (let object of objects) {
-        object.render(mx, my, scale, lastPhysics);
-    }
+
+	ctx.resetTransform();
+	for (let object of gui) {
+		object.render(mx, my, scale, lastPhysics);
+	}
 
     if (isTouchscreen) {
         let buttons = [["a", [10, gameCanvas.height - 60]],["d", [70, gameCanvas.height - 60]],["w", [gameCanvas.width - 60, gameCanvas.height - 60]]]
@@ -590,6 +689,14 @@ window.addEventListener("keydown", (event) => {
     if (event.code == "Space" && edit) {
         editingType = (editingType + 1) % 3;
     }
+
+	if (event.key == "-") {
+		ppL += 100;
+	}
+	if (event.key == "+") {
+		ppL -= 100;
+	}
+
     keys[event.key] = true;
 });
 
