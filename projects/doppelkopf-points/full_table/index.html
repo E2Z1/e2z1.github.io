@@ -64,6 +64,7 @@
 		<button onclick="document.getElementById('fromTime').value = new Date().toISOString().split('T')[0]; showTable()">Today</button>
 		<button onclick="document.getElementById('fromTime').value = getLastWeeksDate().toISOString().split('T')[0]; showTable()">Last Week</button>
 		<button onclick="document.getElementById('fromTime').value = getLastMonthsDate().toISOString().split('T')[0]; showTable()">Last Month</button>
+		<button onclick="document.getElementById('fromTime').value = getFirstJanDate().toISOString().split('T')[0]; showTable()">This Year</button>
 		<button onclick="document.getElementById('fromTime').value = ''; showTable()">Clear</button>
 	</div>
 	<div>

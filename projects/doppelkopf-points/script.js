@@ -592,11 +592,15 @@ function getLastMonthsDate() {
 	date.setMonth(date.getMonth()-1);
 	return date;
 }
+function getFirstJanDate() {
+	let year = new Date().getFullYear();
+	return new Date(Date.UTC(year, 0, 1));
+}
 
 function getLocalDateFromInput(inputValue) {
 	const [year, month, day] = inputValue.split('-').map(Number);
 	return new Date(year, month - 1, day); // month is 0-based
-}  
+}
 
 function showTable() {
 	const from = document.getElementById("fromTime").value ? getLocalDateFromInput(document.getElementById("fromTime").value) : null;
@@ -970,6 +974,7 @@ if (document.getElementById("cur")) {
 if (document.getElementById("full")) {
 	getAll();
 
+	document.getElementById('fromTime').value = getFirstJanDate().toISOString().split('T')[0];
 	document.getElementById("fromTime").onchange = showTable;
 
 	document.getElementById("toTime").onchange = showTable;
