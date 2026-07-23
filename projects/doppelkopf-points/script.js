@@ -379,7 +379,7 @@ class BarChart {
 
 
 		for (let i = 0; i < Object.keys(data).length; i++) {
-			const key = Object.keys(data).sort()[i];
+			const key = Object.keys(data)[i];
 			const val = data[key];
 			const x = 20 + i * barWidth;
 			const height = val * scaleFactor;
@@ -651,6 +651,12 @@ function showTable() {
 	setTimeout(() => doStats(data, fullTable.users), 1);	//this way the table gets rendered even if the stats still take some time
 }
 
+function getFormattedMonth(time) {
+	const d = new Date(time);
+
+	return d.getMonth()+1+" "+d.getFullYear();	//quick and dirty; the barchart class takes the first two characters to display so here its always the two numbers or the number + space
+}
+
 function doStats(data, users) {
 	let userNames = [];
 	let participation = {};
@@ -658,6 +664,7 @@ function doStats(data, users) {
 	let soli = {};
 	let soliWins = {};
 	let eintragender = {};
+	let gameNumber = {};
 	let winPoints = {};
 	let losePoints = {};
 	let avgPoints = {};
@@ -717,7 +724,11 @@ function doStats(data, users) {
 		if (Object.keys(round.points).length == 0)
 			continue;
 
+		const mnth = getFormattedMonth(round.time);
+		if (!(mnth in gameNumber))
+			gameNumber[mnth] = 0;
 
+		gameNumber[mnth]++;
 
 		if (round.eintragender != null && round.eintragender != "" && round.eintragender != " ") {
 			eintragender[round.eintragender] += 1;
@@ -902,6 +913,7 @@ function doStats(data, users) {
 		document.removeEventListener("fullscreenchange", list);
 	}
 	graphEventListeners = [];
+	console.log(gameNumber)
 
 	new BarChart("Total Points", totalPoints, document.getElementById("totalPoints"), false);    //title, data, canvas, siPercentage
 	new Graph("Point History", individualPointHistory, document.getElementById("totalPointsGraph"));    //title, data, canvas, siPercentage
@@ -917,6 +929,8 @@ function doStats(data, users) {
 	new BarChart("Eintragender", eintragender, document.getElementById("eintragender"), true);    //title, data, canvas, siPercentage
 	new BarChart("Soli", soli, document.getElementById("soli"), true);    //title, data, canvas, siPercentage
 	new BarChart("Soli Wins", soliWins, document.getElementById("soliWins"), true);    //title, data, canvas, siPercentage
+	new BarChart("Anzahl an Spielen", gameNumber, document.getElementById("gameNumber"), false);    //title, data, canvas, siPercentage
+	
 	new BarChart("No Bocks", noBockPoints, document.getElementById("noBock"), false);    //title, data, canvas, siPercentage
 	new Graph("No Bock History", individualPointHistory_nobock, document.getElementById("noBockHistory"));
 	new BarChart("ELO", eloPoints, document.getElementById("elo"), false);    //title, data, canvas, siPercentage
